@@ -19,7 +19,8 @@ Yêu cầu Visual Studio 2022 và .NET 8.0
 ## *Features*
 - Fullscreen mode
 - Lưu/Load đồ thị
-- Zoom in/out
+- Zoom in/out map
+- Di chuyển map
 - Ma trận kề/trọng số
 
 ## *Screenshots*
