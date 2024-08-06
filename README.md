@@ -1,5 +1,4 @@
-# <img src="icon/output-onlinepngtools.ico" width ="60" heigh="60 ">
-<center>Lý thuyết đồ thị</center>
+# <img src="icon/output-onlinepngtools.ico" width ="60" heigh="60 "><center>Lý thuyết đồ thị</center>
 <hr>
 
 <hr>
