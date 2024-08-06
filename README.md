@@ -4,11 +4,11 @@
 
 Demo lý thuyết đồ thị Winform
 
-## Chạy phần mềm
+## *Chạy phần mềm*
 
 Yêu cầu Visual Studio 2022 và .NET 8.0 
 
-## Các thuật toán
+## *Các thuật toán*
 
 - DFS
 - BFS
@@ -16,15 +16,15 @@ Yêu cầu Visual Studio 2022 và .NET 8.0
 - Prim
 - Dijkstra
 
-## Features
+## *Features*
 - Fullscreen mode
 - Lưu/Load đồ thị
 - Zoom in/out
 - Ma trận kề/trọng số
 
-## Screenshots
+## *Screenshots*
 
 ![App Screenshot](img/image.png)
 
-
+*Made by Nguyễn Nguyên Vũ*
 
