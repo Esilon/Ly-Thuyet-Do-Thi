@@ -1,4 +1,4 @@
-#<h1 style="">Lý thuyết đồ thị</h1></div>
+#Lý thuyết đồ thị
 <hr>
 
 <hr>
