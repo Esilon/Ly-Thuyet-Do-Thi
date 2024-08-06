@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LastSelectedProfileId>D:\TestVS\GiaoDienDoThi\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="Animation\DijkstraAnimation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Animation\KruskalAnimation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Animation\PrimAnimation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Compoments\MatrixBlock.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Compoments\RJDropdownMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Compoments\Round Button.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Compoments\ThemCanh.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="uc\MatrixShow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="uc\Test.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
