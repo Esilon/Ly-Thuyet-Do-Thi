@@ -21,10 +21,10 @@ namespace Đồ_Thị
 
         }
         //Drag Form
-        [LibraryImport("user32.DLL", EntryPoint = "ReleaseCapture")]
-        private static partial void ReleaseCapture();
-        [LibraryImport("user32.DLL", EntryPoint = "SendMessage")]
-        private static partial void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
 
         private void panelTitle_MouseDown(object sender, MouseEventArgs e)
         {
