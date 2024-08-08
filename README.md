@@ -25,7 +25,7 @@ Yêu cầu Visual Studio 2022 và .NET 8.0
 
 ## *Screenshots*
 
-![App Screenshot](img/image.png)
+![App Screenshot](img/img.png)
 
 *Made by Nguyễn Nguyên Vũ*
 

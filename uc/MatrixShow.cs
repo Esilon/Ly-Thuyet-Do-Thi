@@ -43,7 +43,7 @@ namespace Đồ_Thị.uc
         private float _zoomLevel = 1.0f;
         private PointF _panOffset = new(0, 0);
 
-        private List<Edge> _additionalEllipseEdges;
+        private List<Edge> _additionalEllipseEdges = new();
 
         public MatrixShow()
         {
