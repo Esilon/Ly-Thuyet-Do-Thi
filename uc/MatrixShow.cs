@@ -18,7 +18,6 @@ namespace Đồ_Thị.uc
         private int _selectedVertexIndex = -1;
         private Vertex startDinh = null;
         private PointF currentMousePosition;
-        Mail _mailmanProblem;
         // Vertex and edge settings
         private const int _vertexRadius = 14;
         private readonly Brush _vertexColor = Brushes.LightSalmon;
@@ -44,9 +43,7 @@ namespace Đồ_Thị.uc
         private float _zoomLevel = 1.0f;
         private PointF _panOffset = new(0, 0);
 
-        private List<Edge> _additionalEdges = [];
-        private static readonly Brush _additionalArrowColor = Brushes.Blue; // Màu xanh cho mũi tên cạnh phụ
-        private static readonly Pen _additionalEdgeLineColor = new(Color.Blue, 2); // Màu xanh cho cạnh phụ
+        private List<Edge> _additionalEllipseEdges;
 
         public MatrixShow()
         {
@@ -154,6 +151,7 @@ namespace Đồ_Thị.uc
         {
             _vertices.Clear();
             _edges.Clear();
+            _additionalEllipseEdges.Clear();
             _adjacencyMatrix = new int[0, 0];
             _weightMatrix = new int[0, 0];
             _matrixBlock.AdjacencyMatrix = _adjacencyMatrix;
@@ -219,6 +217,13 @@ namespace Đồ_Thị.uc
             g.TranslateTransform(_panOffset.X, _panOffset.Y);
             g.ScaleTransform(_zoomLevel, _zoomLevel);
             DrawEdges(g);
+            if (_additionalEllipseEdges != null && _vertices.Count > 0)
+            {
+                foreach (var edges in _additionalEllipseEdges)
+                {
+                    DrawEllipseEdge(g, edges);
+                }
+            }
             DrawVertices(g);
 
             if (_vertices.Count > 0 && _edges.Count > 0)
@@ -783,6 +788,21 @@ namespace Đồ_Thị.uc
             float dy = point.Y - yy;
             return Math.Sqrt(dx * dx + dy * dy);
         }
+        public void DrawEllipseEdge(Graphics graphics, Edge edge)
+        {
+            // Tính toán điểm bắt đầu và điểm kết thúc của ellipse
+            PointF start = _vertices[edge.Vertex1].Location;
+            PointF end = _vertices[edge.Vertex2].Location;
+            // Tính toán điểm điều khiển của đường cong Bézier
+            PointF control1 = new PointF(start.X + (end.X - start.X) / 3, start.Y - (end.Y - start.Y) / 3);
+            PointF control2 = new PointF(end.X - (end.X - start.X) / 3, end.Y + (end.Y - start.Y) / 3);
+
+            // Vẽ đường cong
+            using (Pen pen = new Pen(Color.Black, 2)) // Bạn có thể thay đổi màu và độ dày của đường viền
+            {
+                graphics.DrawBezier(pen, start, control1, control2, end);
+            }
+        }
         #region Save and Load Graph
         private void saveGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -798,6 +818,7 @@ namespace Đồ_Thị.uc
 
         private void loadGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            ClearData();
             GraphData loadedGraph = GraphData.OpenGraphFile();
 
             if (loadedGraph != null)
@@ -911,6 +932,7 @@ namespace Đồ_Thị.uc
         {
             string? startVertex;
             Vertex startVertexClass;
+            var oldedge = this._edges.ToList();
             if (cb_First != null && cb_First.SelectedIndex != -1)
             {
                 startVertex = cb_First.SelectedItem as string;
@@ -923,7 +945,6 @@ namespace Đồ_Thị.uc
                 paneldraw.Invalidate();
                 return;
             }
-            var verticesDictionary = _vertices.ToDictionary(v => v.GetHashCode(), v => v);
             var lienthong = new Lienthong(_vertices, _edges);
             bool isConnected = lienthong.CheckLienThong();
             if (!isConnected)
@@ -931,8 +952,16 @@ namespace Đồ_Thị.uc
                 MessageBox.Show("Đồ thị không liên thông");
                 return;
             }
+
             var mailMan = new Mail(_vertices, _edges);
-            mailMan.SolveChinesePostmanProblem(startVertexClass);
+            string a, b;
+            (a, b) = mailMan.SolveChinesePostmanProblem(startVertexClass);
+            this._additionalEllipseEdges = mailMan.GetAddEdge();
+            paneldraw.Invalidate();
+            MessageBox.Show(a, "Kết quả các cặp tối ưu");
+            MessageBox.Show(b, "Chu trình Eulerian");
+            this._edges = [.. oldedge];
+            paneldraw.Invalidate();
         }
         private void Kruskal_Click(object sender, EventArgs e)
         {
