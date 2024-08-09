@@ -1,6 +1,6 @@
 ﻿using Đồ_Thị.Class;
 using Timer = System.Windows.Forms.Timer;
-namespace Đồ_Thị.uc
+namespace Đồ_Thị.Animation
 {
     public class PrimAnimation : UserControl
     {

@@ -198,7 +198,7 @@
                         }
                         else
                         {
-                            List<string> parentStrList = new();
+                            List<string> parentStrList = [];
                             foreach (int parent in parents[i])
                             {
                                 string parentStr = parent == -1 ? "-" : vertices[parent].Value;

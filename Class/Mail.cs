@@ -2,14 +2,45 @@
 {
     public class Mail(List<Vertex> vertices, List<Edge> edges)
     {
-        private List<Vertex> vertices = vertices;
-        private List<Edge> edges = edges;
-        private List<Edge> additionalEllipseEdges = []; // Biến mới để lưu các cạnh ellipse
-        // Phương pháp chính để giải bài toán Người đưa thư Trung Hoa
-        public List<Edge> GetAddEdge()
+        public readonly List<Vertex> vertices = vertices;
+        private readonly List<Edge> edges = edges;
+        private readonly List<Edge> additionalEllipseEdges = []; // Biến mới để lưu các cạnh phụ
+        private List<Vertex> eulerianCycle = [];
+
+        public List<Edge> GetAdditionalEdge()
         {
-            return additionalEllipseEdges;
+            return [.. additionalEllipseEdges];
         }
+        public Vertex? GetVertexById(int id)
+        {
+            return vertices.FirstOrDefault(v => vertices.IndexOf(v) == id);
+        }
+        public List<Vertex>? GetEulerianCycle()
+        {
+            // Giả sử phương thức này đã được định nghĩa để trả về danh sách các đỉnh trong chu trình Eulerian
+            if (eulerianCycle != null || eulerianCycle.Count > 0)
+            {
+                return eulerianCycle;
+            }
+            else
+                return null;
+
+        }
+        public Edge? GetEdgeBetween(Vertex vertex1, Vertex vertex2)
+        {
+            if (edges == null || edges.Count == 0 || vertex1 == null || vertex2 == null)
+            {
+                return null;
+            }
+            else
+            {
+                return edges.FirstOrDefault(edge =>
+                    (edge.Vertex1 == vertices.IndexOf(vertex1) && edge.Vertex2 == vertices.IndexOf(vertex2)) ||
+                    (edge.Vertex1 == vertices.IndexOf(vertex2) && edge.Vertex2 == vertices.IndexOf(vertex1)));
+            }
+
+        }
+        // Phương pháp chính để giải bài toán Người đưa thư Trung Hoa
         public (string, string) SolveChinesePostmanProblem(Vertex startVertex)
         {
             // Bước 1: Tìm các đỉnh có bậc lẻ
@@ -47,7 +78,7 @@
             }
 
             // Tìm chu trình Eulerian từ một đỉnh bất kỳ
-            List<Vertex> eulerianCycle = FindEulerianCycle(startVertex);
+            eulerianCycle = FindEulerianCycle(startVertex);
 
             // Hiển thị chu trình Eulerian
             string cycleMessage = "Chu trình Eulerian: ";
@@ -166,7 +197,7 @@
         {
             int n = vertices.Count;
             bool[] visited = new bool[n];
-            Queue<(int Vertex, int Distance)> queue = new Queue<(int Vertex, int Distance)>();
+            Queue<(int Vertex, int Distance)> queue = new();
 
             queue.Enqueue((startIndex, 0));
             visited[startIndex] = true;
@@ -201,7 +232,7 @@
             {
                 int totalDistance = 0;
                 string pairing = "{";
-                List<Edge> newEdges = new List<Edge>();
+                List<Edge> newEdges = [];
 
                 foreach (var p in pair)
                 {
@@ -224,7 +255,7 @@
         // Tìm đỉnh tới đỉnh đích thông qua từng đỉnh trung gian với khoảng cách nhỏ nhất
         private (int TotalDistance, List<Edge> Edges) FindShortestPath(int startIndex, int endIndex, int[,] distances)
         {
-            List<Edge> pathEdges = new List<Edge>();
+            List<Edge> pathEdges = [];
             int totalDistance = distances[startIndex, endIndex];
 
             if (totalDistance == int.MaxValue)
@@ -234,13 +265,13 @@
             }
 
             // Khởi tạo đồ thị phụ để theo dõi các cạnh trong đường đi ngắn nhất
-            Dictionary<int, List<Edge>> adjList = new Dictionary<int, List<Edge>>();
+            Dictionary<int, List<Edge>> adjList = [];
             foreach (var edge in edges)
             {
                 if (!adjList.ContainsKey(edge.Vertex1))
-                    adjList[edge.Vertex1] = new List<Edge>();
+                    adjList[edge.Vertex1] = [];
                 if (!adjList.ContainsKey(edge.Vertex2))
-                    adjList[edge.Vertex2] = new List<Edge>();
+                    adjList[edge.Vertex2] = [];
 
                 adjList[edge.Vertex1].Add(edge);
                 adjList[edge.Vertex2].Add(edge);
@@ -284,7 +315,7 @@
             }
 
             // Xây dựng danh sách các cạnh của đường đi ngắn nhất
-            Stack<int> path = new Stack<int>();
+            Stack<int> path = new();
             int current = endIndex;
             while (current != -1)
             {
@@ -380,6 +411,7 @@
             cycle.Add(current);
             return cycle;
         }
+        
 
     }
     public class PairingResult(string pairing, int distance, List<Tuple<Vertex, Vertex>> pairs, List<Edge> newEdges)

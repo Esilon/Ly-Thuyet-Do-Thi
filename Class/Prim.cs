@@ -1,19 +1,10 @@
-﻿using Đồ_Thị.Class;
-namespace Đồ_Thị.uc
+﻿namespace Đồ_Thị.Class
 {
-    public class Prim
+    public class Prim(List<Vertex> vertices, List<Edge> edges)
     {
-        private readonly List<Vertex> _vertices;
-        private readonly List<Edge> _edges;
+        private readonly List<Edge> _edges = edges;
         private readonly List<Edge> _minimumSpanningTree = [];
-        private readonly bool[] _visited;
-
-        public Prim(List<Vertex> vertices, List<Edge> edges)
-        {
-            _vertices = vertices;
-            _edges = edges;
-            _visited = new bool[vertices.Count];
-        }
+        private readonly bool[] _visited = new bool[vertices.Count];
 
         public List<Edge> GetMinimumSpanningTree(int startVertex)
         {

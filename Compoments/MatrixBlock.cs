@@ -35,7 +35,7 @@ namespace Đồ_Thị.uc
         private void SetDoubleBufferedPanel()
         {
             _ = typeof(Panel).InvokeMember("DoubleBuffered", BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic, null, this, [true]);
-            this.ResizeRedraw = true;
+            ResizeRedraw = true;
         }
 
         public void Reset()

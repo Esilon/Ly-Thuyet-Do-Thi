@@ -1,13 +1,10 @@
 namespace Đồ_Thị.Class
 {
-    public class PrimTable(List<Vertex> vertices, List<Edge> edges)
+    public class PrimTable()
     {
-        private readonly List<Vertex> vertices = vertices;
-        private readonly List<Edge> edges = edges;
-
         public static void RunPrimAlgorithm(List<Vertex> vertices, List<Edge> edges, DataGridView dataGridView)
         {
-                       var selectedVertices = new HashSet<int> { 0 }; // Bắt đầu từ đỉnh 0
+            var selectedVertices = new HashSet<int> { 0 }; // Bắt đầu từ đỉnh 0
             var mstEdges = new List<Edge>();
             var step = 0;
 
@@ -55,10 +52,10 @@ namespace Đồ_Thị.Class
                     if (selectedVertices.Contains(i))
                         row[i + 1] = "-";
                     else
-                        row[i + 1] = $"[{minEdge.Weight}, {i+1}]";
+                        row[i + 1] = $"[{minEdge.Weight}, {i + 1}]";
                 }
                 row[vertices.Count + 1] = string.Join(",", selectedVertices.Select(v => (v + 1).ToString())); // VH
-                row[vertices.Count + 2] = string.Join(",", mstEdges.Select(e => $"({e.Vertex1+1},{e.Vertex2+1})")); // T
+                row[vertices.Count + 2] = string.Join(",", mstEdges.Select(e => $"({e.Vertex1 + 1},{e.Vertex2 + 1})")); // T
                 dataGridView.Rows.Add(row);
                 step++;
             }

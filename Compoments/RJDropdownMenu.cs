@@ -2,7 +2,7 @@
 
 namespace Đồ_Thị.Compoments
 {
-    public class RJDropdownMenu : ContextMenuStrip
+    public class RJDropdownMenu(IContainer container) : ContextMenuStrip(container)
     {
         //Fields
         private bool isMainMenu;
@@ -11,13 +11,6 @@ namespace Đồ_Thị.Compoments
         private Color primaryColor = Color.Empty;
 
         private Bitmap menuItemHeaderSize;
-
-        //Constructor
-        public RJDropdownMenu(IContainer container)
-            : base(container)
-        {
-
-        }
 
         //Properties
         //Optionally, hide the properties in the toolbox to avoid the problem of displaying and/or 

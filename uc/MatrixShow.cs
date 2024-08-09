@@ -1,4 +1,5 @@
-﻿using Đồ_Thị.Class;
+﻿using Đồ_Thị.Animation;
+using Đồ_Thị.Class;
 using Đồ_Thị.Compoments;
 using System.Drawing.Drawing2D;
 using System.Reflection;
@@ -43,7 +44,7 @@ namespace Đồ_Thị.uc
         private float _zoomLevel = 1.0f;
         private PointF _panOffset = new(0, 0);
 
-        private List<Edge> _additionalEllipseEdges = new();
+        private List<Edge> _additionalEllipseEdges = [];
 
         public MatrixShow()
         {
@@ -60,7 +61,7 @@ namespace Đồ_Thị.uc
         private void SetDoubleBufferedPanel()
         {
             _ = typeof(Panel).InvokeMember("DoubleBuffered", BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic, null, paneldraw, [true]);
-            this.ResizeRedraw = true;
+            ResizeRedraw = true;
         }
 
         private void ResizeMatrixBlock()
@@ -221,7 +222,7 @@ namespace Đồ_Thị.uc
             {
                 foreach (var edges in _additionalEllipseEdges)
                 {
-                    DrawEllipseEdge(g, edges);
+                    DrawBezierEdge(g, edges);
                 }
             }
             DrawVertices(g);
@@ -788,20 +789,19 @@ namespace Đồ_Thị.uc
             float dy = point.Y - yy;
             return Math.Sqrt(dx * dx + dy * dy);
         }
-        public void DrawEllipseEdge(Graphics graphics, Edge edge)
+        public void DrawBezierEdge(Graphics g, Edge edge)
         {
             // Tính toán điểm bắt đầu và điểm kết thúc của ellipse
-            PointF start = _vertices[edge.Vertex1].Location;
-            PointF end = _vertices[edge.Vertex2].Location;
+            PointF p1 = _vertices[edge.Vertex1].Location;
+            PointF p2 = _vertices[edge.Vertex2].Location;
             // Tính toán điểm điều khiển của đường cong Bézier
-            PointF control1 = new PointF(start.X + (end.X - start.X) / 3, start.Y - (end.Y - start.Y) / 3);
-            PointF control2 = new PointF(end.X - (end.X - start.X) / 3, end.Y + (end.Y - start.Y) / 3);
-
-            // Vẽ đường cong
-            using (Pen pen = new Pen(Color.Black, 2)) // Bạn có thể thay đổi màu và độ dày của đường viền
-            {
-                graphics.DrawBezier(pen, start, control1, control2, end);
-            }
+            PointF midpoint = new((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2);
+            float distance = (float)Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
+            float controlPointOffset = distance / 8;
+            PointF controlPoint = new(midpoint.X + controlPointOffset, midpoint.Y - controlPointOffset);
+            using Pen pen = new(Color.Black, 2);
+            pen.DashPattern = [10, 3];
+            g.DrawBezier(pen, p1, controlPoint, controlPoint, p2);
         }
         #region Save and Load Graph
         private void saveGraphToolStripMenuItem_Click(object sender, EventArgs e)
@@ -932,7 +932,7 @@ namespace Đồ_Thị.uc
         {
             string? startVertex;
             Vertex startVertexClass;
-            var oldedge = this._edges.ToList();
+            var oldedge = _edges.ToList();
             if (cb_First != null && cb_First.SelectedIndex != -1)
             {
                 startVertex = cb_First.SelectedItem as string;
@@ -956,11 +956,14 @@ namespace Đồ_Thị.uc
             var mailMan = new Mail(_vertices, _edges);
             string a, b;
             (a, b) = mailMan.SolveChinesePostmanProblem(startVertexClass);
-            this._additionalEllipseEdges = mailMan.GetAddEdge();
+            _additionalEllipseEdges = mailMan.GetAdditionalEdge();
             paneldraw.Invalidate();
             MessageBox.Show(a, "Kết quả các cặp tối ưu");
+            var animator = new MailAnimator(mailMan, paneldraw);
+            paneldraw.Paint += animator.OnPaint;
+            animator.StartAnimation();
             MessageBox.Show(b, "Chu trình Eulerian");
-            this._edges = [.. oldedge];
+            _edges = [.. oldedge];
             paneldraw.Invalidate();
         }
         private void Kruskal_Click(object sender, EventArgs e)
@@ -1115,7 +1118,7 @@ namespace Đồ_Thị.uc
                 }
                 if (startVertexIndex != -1 && endVertexIndex != -1)
                 {
-                    Dijkstra dijkstraAlgorithm = new(_vertices, _edges, _vertices.Count);
+                    Dijkstra dijkstraAlgorithm = new(_edges, _vertices.Count);
                     (int[] distances, List<int>[] parents, List<int[]> steps) = dijkstraAlgorithm.DijkstraShortestPath(startVertexIndex);
 
                     if (steps.Count > 0)

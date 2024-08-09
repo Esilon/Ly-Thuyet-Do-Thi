@@ -1,15 +1,10 @@
 ﻿namespace Đồ_Thị.Class
 {
-    public class DFS
+    public class DFS(int[,] adjacencyMatrix)
     {
-        private readonly int[,] _adjacencyMatrix;
-        private bool[] _visited;
+        private readonly int[,] _adjacencyMatrix = adjacencyMatrix;
+        private bool[]? _visited;
         private List<int> _result;
-        public DFS(int[,] adjacencyMatrix)
-        {
-            _adjacencyMatrix = adjacencyMatrix;
-        }
-
         public List<int> PerformDFS(int startVertex)
         {
             int size = _adjacencyMatrix.GetLength(0);

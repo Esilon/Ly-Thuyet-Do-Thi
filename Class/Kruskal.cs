@@ -3,13 +3,11 @@
     public class Kruskal
     {
         private readonly List<Edge> _edges;
-        private readonly List<Vertex> _vertices;
         private readonly List<Edge> _minimumSpanningTree;
         private readonly int[] _parent;
 
         public Kruskal(List<Vertex> vertices, List<Edge> edges)
         {
-            _vertices = vertices;
             _edges = edges;
             _minimumSpanningTree = [];
             _parent = new int[vertices.Count];

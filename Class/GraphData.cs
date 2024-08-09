@@ -38,7 +38,7 @@ namespace Đồ_Thị.Class
 
         public static GraphData LoadGraph(string fileName)
         {
-            GraphData loadedData = null;
+            GraphData loadedData;
 
             try
             {
@@ -49,6 +49,7 @@ namespace Đồ_Thị.Class
             catch (Exception ex)
             {
                 _ = MessageBox.Show("Lỗi khi tải đồ thị: " + ex.Message);
+                return null;
             }
 
             return loadedData;
@@ -60,7 +61,6 @@ namespace Đồ_Thị.Class
                 Filter = "Graph files (*.graph)|*.graph|All files (*.*)|*.*",
                 Title = "Open Graph File"
             };
-
             try
             {
                 if (openFileDialog.ShowDialog() == DialogResult.OK)

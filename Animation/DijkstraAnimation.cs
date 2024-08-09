@@ -1,7 +1,7 @@
 ﻿using Đồ_Thị.Class;
 using Timer = System.Windows.Forms.Timer;
 
-namespace Đồ_Thị.uc
+namespace Đồ_Thị.Animation
 {
     public class DijkstraAnimation : UserControl
     {
@@ -82,8 +82,8 @@ namespace Đồ_Thị.uc
         }
         private void CalculateShortestPath()
         {
-            _shortestPathEdges = new List<Edge>(); // List to store the edges of the shortest path
-            List<int> _parentVertices = new(); // List to store parent vertices for path reconstruction
+            _shortestPathEdges = []; // List to store the edges of the shortest path
+            List<int> _parentVertices = []; // List to store parent vertices for path reconstruction
 
             // Initialize parent vertices list with -1 (indicating no parent)
             for (int i = 0; i < _vertices.Count; i++)
@@ -92,7 +92,7 @@ namespace Đồ_Thị.uc
             }
 
             // Initialize distances dictionary with maximum value, except for source vertex which is 0
-            Dictionary<int, int> distances = new();
+            Dictionary<int, int> distances = [];
             foreach (Vertex vertex in _vertices)
             {
                 int a = _vertices.IndexOf(vertex);
