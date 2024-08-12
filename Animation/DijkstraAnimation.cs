@@ -336,7 +336,7 @@ namespace Đồ_Thị.Animation
         }
 
     }
-    public class PriorityQueue<T>
+    public partial class PriorityQueue<T>
     {
         private readonly SortedDictionary<int, Queue<T>> _sortedItems = [];
         public void Enqueue(T item, int priority)

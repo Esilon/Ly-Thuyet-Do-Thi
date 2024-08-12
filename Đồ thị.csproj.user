@@ -13,6 +13,9 @@
     <Compile Update="Animation\PrimAnimation.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Animation\PrimAnimationBTTT.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Compoments\MatrixBlock.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -31,7 +34,7 @@
     <Compile Update="uc\MatrixShow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="uc\Test.cs">
+    <Compile Update="uc\Prim BTTT.cs">
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>

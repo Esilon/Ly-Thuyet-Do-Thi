@@ -267,7 +267,7 @@ namespace Đồ_Thị
             {
                 c.Dispose();
             }
-            Test test = new();
+            Prim_BTTT test = new();
             panelMain.Controls.Add(test);
             test.Dock = DockStyle.Fill;
         }

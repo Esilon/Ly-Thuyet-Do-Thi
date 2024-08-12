@@ -1,12 +1,14 @@
-﻿using Đồ_Thị.Animation;
-using Đồ_Thị.Class;
-using Đồ_Thị.Compoments;
+﻿
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Text;
+using Đồ_Thị.Animation;
+using Đồ_Thị.Class;
+using Đồ_Thị.Compoments;
+
 namespace Đồ_Thị.uc
 {
-    public partial class MatrixShow : UserControl
+    public partial class Prim_BTTT : UserControl
     {
         private readonly MatrixBlock _matrixBlock = new();
         private readonly MovingBall _movingBall;
@@ -27,7 +29,7 @@ namespace Đồ_Thị.uc
 
         // Edge settings
         private static readonly Brush _edgeWeightColor = Brushes.DarkOrange;
-        private static readonly Brush _edgeWeightOutlineColor = Brushes.Black;
+        private static readonly Pen _edgeWeightOutlineColor = new(Color.Black);
         private readonly Pen _edgeLineColor = new(Color.MediumPurple, 5);
         private const int _arrowSize = 18;
         private static readonly Brush _arrowColor = Brushes.MediumPurple;
@@ -46,7 +48,7 @@ namespace Đồ_Thị.uc
 
         private List<Edge> _additionalEllipseEdges = [];
 
-        public MatrixShow()
+        public Prim_BTTT()
         {
             InitializeComponent();
             SetDoubleBufferedPanel();
@@ -67,7 +69,7 @@ namespace Đồ_Thị.uc
         private void ResizeMatrixBlock()
         {
             _matrixBlock.Location = new Point(10, 10);
-            _matrixBlock.Size = new Size(100, 100);
+            _matrixBlock.Size = new Size(150, 150);
         }
 
         private void ShowOrHideMatrixBlock()
@@ -715,17 +717,24 @@ namespace Đồ_Thị.uc
 
             float midX = (p1.X + p2.X) / 2;
             float midY = (p1.Y + p2.Y) / 2;
-            RectangleF squareRect = new(midX - 9, midY - 9, 18, 18);
 
-            g.FillRectangle(_edgeWeightOutlineColor, squareRect);
+            // Tính toán kích thước hộp chữ dựa trên kích thước văn bản
+            using Font font = new("Arial", 10, FontStyle.Bold);
+            string weightText = $"{weight} m";
+            SizeF textSize = g.MeasureString(weightText, font);
+
+            // Kéo dài kích thước hộp chữ để chứa văn bản dễ đọc hơn
+            float padding = 5; // Khoảng cách lề xung quanh văn bản
+            RectangleF squareRect = new(midX - (textSize.Width + padding) / 2, midY - (textSize.Height + padding) / 2, textSize.Width + padding, textSize.Height + padding);
+
+            // Vẽ nền và viền cho hộp chữ
             g.FillRectangle(_edgeWeightColor, squareRect);
+            g.DrawRectangle(_edgeWeightOutlineColor, squareRect.X, squareRect.Y, squareRect.Width, squareRect.Height);
 
-            using Font font = new("Arial", 12);
-            SizeF textSize = g.MeasureString(weight.ToString(), font);
+            // Vẽ văn bản
             PointF textLocation = new(midX - textSize.Width / 2, midY - textSize.Height / 2);
-            g.DrawString(weight.ToString(), font, Brushes.Black, textLocation);
+            g.DrawString(weightText, font, Brushes.Black, textLocation);
         }
-
         private void DrawSelfLoop(Graphics g, PointF location, int weight, bool isDirected)
         {
             float radius = 20;
@@ -836,150 +845,40 @@ namespace Đồ_Thị.uc
         #endregion
 
         #region Nút kích hoạt thuật toán
-        private void DFS_Click(object sender, EventArgs e)
+        private void Prim_Click(object sender, EventArgs e)
         {
             if (cb_First != null && cb_First.SelectedIndex != -1)
             {
-                string? selectedVertexValue = cb_First.SelectedItem as string;
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == selectedVertexValue);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
+                string? startVertex = cb_First.SelectedItem as string;
+                int startVertexIndex = _vertices.FindIndex(v => v.Value == startVertex);
+
+                if (startVertexIndex == -1)
                 {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
+                    _ = MessageBox.Show("Đỉnh bắt đầu không hợp lệ.", "Thông báo");
                     return;
                 }
-                if (startVertexIndex != -1)
-                {
-                    DFS dfs = new(_adjacencyMatrix);
-                    List<int> result = dfs.PerformDFS(startVertexIndex);
-                    List<PointF> dfsPath = [];
-                    foreach (int vertexIndex in result)
-                    {
-                        PointF vertexLocation = _vertices[vertexIndex].Location;
-                        dfsPath.Add(vertexLocation);
-                    }
-                    if (dfsPath.Count > 0)
-                        dfsPath.Add(dfsPath[^1]);
-                    _movingBall.EdgePath = dfsPath;
-                    _movingBall.Start();
-                    _ = MessageBox.Show($"Duyệt DFS bắt đầu từ đỉnh {selectedVertexValue}: \n" + string.Join(" -> ", result.Select(v => _vertices[v].Value)));
-                    btn_ClearMovingBall.PerformClick();
-                    ShowOrHideMatrixBlock();
-                    UpdateMatrix();
-                }
-                else
-                {
-                    _ = MessageBox.Show("Không tìm thấy đỉnh phù hợp. Vui lòng chọn một đỉnh khác.");
-                }
-            }
-            else
-            {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu duyệt DFS.");
-                _ = cb_First!.Focus();
-                paneldraw.Invalidate();
-            }
-        }
 
-        private void BFS_Click(object sender, EventArgs e)
-        {
-            if (cb_First != null && cb_First.SelectedIndex != -1)
-            {
-                string? selectedVertexValue = cb_First.SelectedItem as string;
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == selectedVertexValue);
                 var lienthong = new Lienthong(_vertices, _edges);
                 bool CheckLienThong = lienthong.CheckLienThong();
+
                 if (!CheckLienThong)
                 {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
+                    _ = MessageBox.Show("Đồ thị không liên thông", "Thông báo");
                     return;
                 }
-                if (startVertexIndex != -1)
+
+                Prim primAlgorithm = new(_vertices, _edges);
+                List<Edge> minimumSpanningTree = primAlgorithm.GetMinimumSpanningTree(startVertexIndex);
+
+                if (minimumSpanningTree.Count == 0)
                 {
-                    BFS bfs = new(_adjacencyMatrix, _vertices);
-                    (List<int> result, List<string> adjacencyLog) = bfs.PerformBFS(startVertexIndex);
-                    List<PointF> bfsPath = [];
-
-                    foreach (int vertexIndex in result)
-                    {
-                        PointF vertexLocation = _vertices[vertexIndex].Location;
-                        bfsPath.Add(vertexLocation);
-                    }
-
-                    if (bfsPath.Count > 0)
-                        bfsPath.Add(bfsPath[bfsPath.Count - 1]);
-                    _movingBall.EdgePath = bfsPath;
-                    _movingBall.Start();
-                    _ = MessageBox.Show($"Duyệt BFS bắt đầu từ đỉnh {selectedVertexValue}: \n" + string.Join(" -> ", result.Select(v => _vertices[v].Value)));
-                    btn_ClearMovingBall.PerformClick();
-                    ShowOrHideMatrixBlock();
-                    UpdateMatrix();
+                    _ = MessageBox.Show("Không tìm thấy cạnh nào trong cây bao phủ nhỏ nhất.", "Thông báo");
+                    return;
                 }
-                else
-                {
-                    _ = MessageBox.Show("Không tìm thấy đỉnh phù hợp. Vui lòng chọn một đỉnh khác.");
-                }
-            }
-            else
-            {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu duyệt BFS.");
-                _ = cb_First!.Focus();
-                paneldraw.Invalidate();
-            }
-        }
 
-        private void MailMan_Click(object sender, EventArgs e)
-        {
-            string? startVertex;
-            Vertex startVertexClass;
-            var oldedge = _edges.ToList();
-            if (cb_First != null && cb_First.SelectedIndex != -1)
-            {
-                startVertex = cb_First.SelectedItem as string;
-                startVertexClass = _vertices.FirstOrDefault(v => v.Value == startVertex);
-            }
-            else
-            {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu duyệt MailMan.");
-                _ = cb_First!.Focus();
-                paneldraw.Invalidate();
-                return;
-            }
-            var lienthong = new Lienthong(_vertices, _edges);
-            bool isConnected = lienthong.CheckLienThong();
-            if (!isConnected)
-            {
-                MessageBox.Show("Đồ thị không liên thông");
-                return;
-            }
+                decimal pricePerMeter = Prompt.ShowPriceInputDialog();
 
-            var mailMan = new Mail(_vertices, _edges);
-            string a, b;
-            (a, b) = mailMan.SolveChinesePostmanProblem(startVertexClass);
-            _additionalEllipseEdges = mailMan.GetAdditionalEdge();
-            paneldraw.Invalidate();
-            MessageBox.Show(a, "Kết quả các cặp tối ưu");
-            var animator = new MailAnimator(mailMan, paneldraw);
-            paneldraw.Paint += animator.OnPaint;
-            animator.StartAnimation();
-            MessageBox.Show(b, "Chu trình Eulerian");
-            _edges = [.. oldedge];
-            paneldraw.Invalidate();
-        }
-        private void Kruskal_Click(object sender, EventArgs e)
-        {
-            var lienthong = new Lienthong(_vertices, _edges);
-            bool CheckLienThong = lienthong.CheckLienThong();
-            if (!CheckLienThong)
-            {
-                _ = MessageBox.Show("Đồ thị không liên thông");
-                return;
-            }
-            Kruskal kruskalAlgorithm = new(_vertices, _edges);
-            List<Edge> minimumSpanningTree = kruskalAlgorithm.GetMinimumSpanningTree();
-
-            if (minimumSpanningTree.Count > 0)
-            {
+                // Clear the drawing panel
                 foreach (Control control in paneldraw.Controls)
                 {
                     if (control != _matrixBlock)
@@ -989,206 +888,45 @@ namespace Đồ_Thị.uc
                 }
                 paneldraw.Controls.Clear();
 
-                KruskalAnimation kruskalAnimation = new(_vertices, _edges, minimumSpanningTree);
-                kruskalAnimation.SetTransform(_zoomLevel, _panOffset);
-                paneldraw.Controls.Add(kruskalAnimation);
-                kruskalAnimation.Dock = DockStyle.Fill;
+                // Animate the Prim's algorithm result
+                PrimAnimationBTTT _primAnimation = new(_vertices, _edges, minimumSpanningTree);
+                _primAnimation.SetTransform(_zoomLevel, _panOffset);
+                paneldraw.Controls.Add(_primAnimation);
+                _primAnimation.Dock = DockStyle.Fill;
                 paneldraw.Invalidate();
+                Prompt.DisplayPrimStepsBTTT("Tổng giá tiền dây mạng",minimumSpanningTree,_vertices,pricePerMeter);
+                // // Display the MST information
+                // StringBuilder sb = new();
+                // _ = sb.AppendLine("Các cạnh của cây bao phủ nhỏ nhất:");
+                // HashSet<int> verticesInMST = new();
 
-                StringBuilder sb = new();
-                _ = sb.AppendLine("Các cạnh của cây bao phủ nhỏ nhất:");
-                HashSet<int> verticesInMST = [];
+                // foreach (Edge edge in minimumSpanningTree)
+                // {
+                //     string vertex1Value = _vertices[edge.Vertex1].Value;
+                //     string vertex2Value = _vertices[edge.Vertex2].Value;
+                //     _ = sb.AppendLine($"{vertex1Value} - {vertex2Value} (Trọng số: {edge.Weight})");
 
-                foreach (Edge edge in minimumSpanningTree)
-                {
-                    string vertex1Value = _vertices[edge.Vertex1].Value;
-                    string vertex2Value = _vertices[edge.Vertex2].Value;
-                    _ = sb.AppendLine($"{vertex1Value} - {vertex2Value} (Trọng số: {edge.Weight})");
+                //     _ = verticesInMST.Add(edge.Vertex1);
+                //     _ = verticesInMST.Add(edge.Vertex2);
+                // }
 
-                    _ = verticesInMST.Add(edge.Vertex1);
-                    _ = verticesInMST.Add(edge.Vertex2);
-                }
+                // int totalWeight = minimumSpanningTree.Sum(e => e.Weight);
+                // _ = sb.AppendLine("\nTổng trọng số của cây bao phủ nhỏ nhất: " + totalWeight);
+                // _ = MessageBox.Show(sb.ToString(), "Thông tin cây bao phủ nhỏ nhất");
 
-                int totalWeight = minimumSpanningTree.Sum(e => e.Weight);
-                _ = sb.AppendLine("\nTổng trọng số của cây bao phủ nhỏ nhất: " + totalWeight);
-                Prompt.DisplayKruskalSteps("Cặp đỉnh kruskal", minimumSpanningTree, _vertices);
-                _ = MessageBox.Show(sb.ToString(), "Thông tin cây bao phủ nhỏ nhất");
-                kruskalAnimation.Dispose();
+                _primAnimation.Dispose();
                 ResizeMatrixBlock();
                 ShowOrHideMatrixBlock();
                 UpdateMatrix();
             }
             else
             {
-                _ = MessageBox.Show("Không tìm thấy cạnh nào trong cây bao phủ nhỏ nhất.", "Thông báo");
-            }
-        }
-
-
-        private void Prim_Click(object sender, EventArgs e)
-        {
-            if (cb_First != null && cb_First.SelectedIndex != -1)
-            {
-                string? startVertex = cb_First.SelectedItem as string;
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == startVertex);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
-                {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
-                    return;
-                }
-                if (startVertexIndex != -1)
-                {
-                    Prim primAlgorithm = new(_vertices, _edges);
-                    List<Edge> minimumSpanningTree = primAlgorithm.GetMinimumSpanningTree(startVertexIndex);
-                    if (minimumSpanningTree.Count > 0)
-                    {
-
-                        foreach (Control control in paneldraw.Controls)
-                        {
-                            if (control != _matrixBlock)
-                            {
-                                control.Dispose();
-                            }
-                        }
-                        paneldraw.Controls.Clear();
-
-                        PrimAnimationBTTT _primAnimation = new(_vertices, _edges, minimumSpanningTree);
-                        _primAnimation.SetTransform(_zoomLevel, _panOffset);
-                        paneldraw.Controls.Add(_primAnimation);
-                        _primAnimation.Dock = DockStyle.Fill;
-                        paneldraw.Invalidate();
-                        StringBuilder sb = new();
-                        _ = sb.AppendLine("Các cạnh của cây bao phủ nhỏ nhất:");
-                        HashSet<int> verticesInMST = [];
-                        // Lấy cặp cạnh trong cây bao phủ nhỏ nhất và hiển thị
-                        foreach (Edge edge in minimumSpanningTree)
-                        {
-                            string vertex1Value = _vertices[edge.Vertex1].Value;
-                            string vertex2Value = _vertices[edge.Vertex2].Value;
-                            _ = sb.AppendLine($"{vertex1Value} - {vertex2Value} (Trọng số: {edge.Weight})");
-
-                            _ = verticesInMST.Add(edge.Vertex1);
-                            _ = verticesInMST.Add(edge.Vertex2);
-                        }
-                        int totalWeight = minimumSpanningTree.Sum(e => e.Weight);
-                        _ = sb.AppendLine("\nTổng trọng số của cây bao phủ nhỏ nhất: " + totalWeight);
-                        _ = MessageBox.Show(sb.ToString(), "Thông tin cây bao phủ nhỏ nhất");
-                        _primAnimation.Dispose();
-                        ResizeMatrixBlock();
-                        ShowOrHideMatrixBlock();
-                        UpdateMatrix();
-                    }
-                    else
-                    {
-                        _ = MessageBox.Show("Không tìm thấy cạnh nào trong cây bao phủ nhỏ nhất.", "Thông báo");
-                    }
-                }
-                else
-                {
-                    _ = MessageBox.Show("Đỉnh bắt đầu không hợp lệ.", "Thông báo");
-                }
-            }
-            else
-            {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu thuật toán Prim.");
+                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu thuật toán Prim.", "Thông báo");
                 _ = cb_First.Focus();
                 paneldraw.Invalidate();
             }
         }
 
-        private void Dijkstra_Click(object sender, EventArgs e)
-        {
-            if (cb_First.SelectedItem != null && cb_Second.SelectedItem != null)
-            {
-                string startVertexValue = cb_First.SelectedItem.ToString();
-                string endVertexValue = cb_Second.SelectedItem.ToString();
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == startVertexValue);
-                int endVertexIndex = _vertices.FindIndex(v => v.Value == endVertexValue);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
-                {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
-                    return;
-                }
-                if (startVertexIndex != -1 && endVertexIndex != -1)
-                {
-                    Dijkstra dijkstraAlgorithm = new(_edges, _vertices.Count);
-                    (int[] distances, List<int>[] parents, List<int[]> steps) = dijkstraAlgorithm.DijkstraShortestPath(startVertexIndex);
-
-                    if (steps.Count > 0)
-                    {
-                        Prompt.DisplayDijkstraSteps("Dijkstra", distances, parents, steps, _vertices);
-                        foreach (Control control in paneldraw.Controls)
-                        {
-                            if (control != _matrixBlock)
-                            {
-                                control.Dispose();
-                            }
-                        }
-                        paneldraw.Controls.Clear();
-                        List<PointF> dijkstraPath = [];
-                        int currentVertexIndex = endVertexIndex;
-                        int totalWeight = 0;
-                        List<string> pathWithWeights = [];
-                        while (currentVertexIndex != startVertexIndex && currentVertexIndex != -1)
-                        {
-                            PointF vertexLocation = _vertices[currentVertexIndex].Location;
-                            dijkstraPath.Add(vertexLocation);
-
-                            int previousVertexIndex = parents[currentVertexIndex].FirstOrDefault();
-                            if (previousVertexIndex != -1)
-                            {
-                                Edge? edge = _edges.FirstOrDefault(e => (e.Vertex1 == currentVertexIndex && e.Vertex2 == previousVertexIndex) ||
-                                                                         (e.Vertex1 == previousVertexIndex && e.Vertex2 == currentVertexIndex));
-                                if (edge != null)
-                                {
-                                    totalWeight += edge.Weight;
-                                    pathWithWeights.Insert(0, $"{_vertices[previousVertexIndex].Value} --> {_vertices[currentVertexIndex].Value} (Trọng số: {edge.Weight})");
-                                }
-                            }
-
-                            currentVertexIndex = previousVertexIndex;
-                        }
-
-                        dijkstraPath.Add(_vertices[startVertexIndex].Location);
-                        dijkstraPath.Reverse();
-                        StringBuilder sb = new();
-                        _ = sb.AppendLine($"Đường đi ngắn nhất từ {startVertexValue} đến {endVertexValue}:");
-                        _ = sb.AppendLine();
-                        foreach (string path in pathWithWeights)
-                        {
-                            _ = sb.AppendLine(path);
-                        }
-                        _ = sb.AppendLine($"Tổng trọng số: {totalWeight}");
-                        DijkstraAnimation dijkstraAnimation = new(_vertices, _edges, steps, startVertexIndex, endVertexIndex);
-                        dijkstraAnimation.SetTransform(_zoomLevel, _panOffset);
-                        paneldraw.Controls.Add(dijkstraAnimation);
-                        dijkstraAnimation.Dock = DockStyle.Fill;
-                        _ = MessageBox.Show(sb.ToString(), "Thông tin đường đi ngắn nhất");
-                        paneldraw.Invalidate();
-                        dijkstraAnimation.Dispose();
-                        ResizeMatrixBlock();
-                        ShowOrHideMatrixBlock();
-                        UpdateMatrix();
-                    }
-                    else
-                    {
-                        _ = MessageBox.Show("Không tìm thấy đường đi nào từ đỉnh bắt đầu.", "Thông báo");
-                    }
-                }
-                else
-                {
-                    _ = MessageBox.Show("Không tìm thấy đỉnh phù hợp. Vui lòng chọn một đỉnh khác.", "Thông báo");
-                }
-            }
-            else
-            {
-                _ = MessageBox.Show("Vui lòng chọn đỉnh xuất phát và đỉnh đích để tìm đường đi ngắn nhất.", "Thông báo");
-            }
-        }
 
         #endregion
 
@@ -1220,3 +958,6 @@ namespace Đồ_Thị.uc
         }
     }
 }
+
+
+

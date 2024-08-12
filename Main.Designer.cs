@@ -113,7 +113,7 @@
             btnSideBar1.Size = new Size(206, 46);
             btnSideBar1.TabIndex = 2;
             btnSideBar1.Tag = "btnSideBar1";
-            btnSideBar1.Text = "Test";
+            btnSideBar1.Text = "Prim_BTTT";
             btnSideBar1.TextAlign = ContentAlignment.MiddleLeft;
             btnSideBar1.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnSideBar1.UseVisualStyleBackColor = false;
@@ -303,7 +303,7 @@
             btnSidebarMenu_Transition.Interval = 10;
             btnSidebarMenu_Transition.Tick += btnButtonMenu_Transition_Tick;
             // 
-            // Form1
+            // Main
             // 
             AutoScaleMode = AutoScaleMode.None;
             AutoSize = true;
@@ -313,7 +313,7 @@
             Controls.Add(panelSideBarMenu);
             Icon = (Icon)resources.GetObject("$this.Icon");
             KeyPreview = true;
-            Name = "Form1";
+            Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "ĐỒ THỊ CHUNG";
             Resize += Form1_Resize;

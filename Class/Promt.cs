@@ -1,6 +1,9 @@
-﻿namespace Đồ_Thị.Class
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
+
+namespace Đồ_Thị.Class
 {
-    public static class Prompt
+    public static partial class Prompt
     {
         public static string ShowDialog(string text, string caption)
         {
@@ -125,11 +128,11 @@
             prompt.Controls.Add(dataGridView);
             _ = prompt.ShowDialog();
         }
-        public static void DisplayPrimSteps(string caption, List<Edge> minimumSpanningTree, List<Vertex> vertices)
+        public static void DisplayPrimStepsBTTT(string caption, List<Edge> minimumSpanningTree, List<Vertex> vertices, decimal pricePerMeter)
         {
             using Form prompt = new();
-            prompt.Width = 1200;
-            prompt.Height = 800;
+            prompt.Width = 400;
+            prompt.Height = 500;
             prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
             prompt.Text = caption;
             prompt.StartPosition = FormStartPosition.CenterScreen;
@@ -140,17 +143,107 @@
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
 
-            dataGridView.Columns.Add("Step", "Bước lặp");
-            for (int i = 0; i < vertices.Count; i++)
+            dataGridView.ColumnCount = 3;
+            dataGridView.Columns[0].Name = "Cạnh";
+            dataGridView.Columns[1].Name = "Trọng số (Mét)";
+            dataGridView.Columns[2].Name = "Chi phí (VNĐ)";
+
+            int totalWeight = 0; // Tổng trọng số của MST
+            decimal totalCost = 0; // Tổng chi phí
+
+            foreach (Edge edge in minimumSpanningTree)
             {
-                dataGridView.Columns.Add($"Vertex{i + 1}","Đỉnh"+ vertices[i].Value);
+                string edgeDescription = $"{vertices[edge.Vertex1].Value} - {vertices[edge.Vertex2].Value}";
+                string weightText = $"{edge.Weight} m";
+                string costText = $"{edge.Weight * pricePerMeter:###,###,###} VNĐ"; // Định dạng tiền VNĐ
+
+                dataGridView.Rows.Add(edgeDescription, weightText, costText);
+                totalWeight += edge.Weight;
+                totalCost += edge.Weight * pricePerMeter;
             }
-            dataGridView.Columns.Add("VH", "VH"); // Các đỉnh đã chọn
-            dataGridView.Columns.Add("T", "T"); // Các cạnh trong cây khung
+
+            // Thêm hàng tổng số tiền
+            string totalWeightText = $"{totalWeight} m";
+            string totalCostText = $"{totalCost:###,###,###} VNĐ"; // Định dạng tiền VNĐ
+            string[] totalRow =
+            {
+        "Tổng trọng số:",
+        totalWeightText,
+        totalCostText
+    };
+            dataGridView.Rows.Add(totalRow);
+
             prompt.Controls.Add(dataGridView);
-            PrimTable.RunPrimAlgorithm(vertices, minimumSpanningTree, dataGridView);
-            prompt.ShowDialog();
+            _ = prompt.ShowDialog();
         }
+
+        public static decimal ShowPriceInputDialog()
+        {
+            using Form priceForm = new();
+            priceForm.Width = 300;
+            priceForm.Height = 150;
+            priceForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+            priceForm.Text = "Nhập giá tiền cho mỗi mét";
+            priceForm.StartPosition = FormStartPosition.CenterScreen;
+
+            Label label = new()
+            {
+                Left = 10,
+                Top = 20,
+                Text = "Giá tiền (VNĐ) mỗi mét:"
+            };
+
+            TextBox textBox = new()
+            {
+                Left = 150,
+                Top = 20,
+                Width = 100,
+                MaxLength = 15 // Điều chỉnh theo nhu cầu
+            };
+
+            Button okButton = new()
+            {
+                Text = "OK",
+                Left = 100,
+                Width = 100,
+                Top = 60,
+                DialogResult = DialogResult.OK
+            };
+
+            okButton.Click += (sender, e) => priceForm.Close();
+            textBox.TextChanged += (sender, e) =>
+            {
+                // Lấy giá trị không có ký hiệu VNĐ
+                string cleanedText = MyRegex().Replace(textBox.Text.Replace(" VNĐ", ""), "");
+
+                if (string.IsNullOrEmpty(cleanedText))
+                {
+                    // Xóa TextBox nếu không còn số nào
+                    textBox.Text = string.Empty;
+                    textBox.Select(0, 0);
+                }
+                else
+                {
+                    // Định dạng giá trị và thêm ký hiệu VNĐ
+                    if (decimal.TryParse(cleanedText, out decimal value))
+                    {
+                        string formattedText = value.ToString("N0", new CultureInfo("en-US")) + " VNĐ";
+                        textBox.Text = formattedText;
+
+                        // Đặt con trỏ ngay sau số tiền
+                        int cursorPosition = textBox.Text.Length - " VNĐ".Length;
+                        textBox.Select(cursorPosition, 0);
+                    }
+                }
+            };
+            priceForm.Controls.Add(label);
+            priceForm.Controls.Add(textBox);
+            priceForm.Controls.Add(okButton);
+            priceForm.AcceptButton = okButton;
+
+            return priceForm.ShowDialog() == DialogResult.OK && decimal.TryParse(textBox.Text.Replace(" VNĐ", ""), out decimal price) ? price : 0;
+        }
+
         public static void DisplayDijkstraSteps(string caption, int[] distances, List<int>[] parents, List<int[]> steps, List<Vertex> vertices)
         {
             using Form prompt = new();
@@ -229,5 +322,7 @@
             _ = prompt.ShowDialog();
         }
 
+        [GeneratedRegex(@"[^0-9]")]
+        private static partial Regex MyRegex();
     }
 }
