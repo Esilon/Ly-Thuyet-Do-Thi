@@ -15,7 +15,7 @@ Yêu cầu Visual Studio 2022 và .NET 8.0
 - Kruskal
 - Prim
 - Dijkstra
-
+- Người đưa thư
 ## *Features*
 - Fullscreen mode
 - Lưu/Load đồ thị
