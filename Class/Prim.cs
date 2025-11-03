@@ -1,53 +1,62 @@
-﻿namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
-    public class Prim(List<Vertex> vertices, List<Edge> edges)
+    /// <summary>
+    /// Implements Prim's algorithm to find the Minimum Spanning Tree (MST) of a graph.
+    /// </summary>
+    public class Prim
     {
-        private readonly List<Edge> _edges = edges;
-        private readonly List<Edge> _minimumSpanningTree = [];
-        private readonly bool[] _visited = new bool[vertices.Count];
+        private readonly List<Edge> _edges;
+        private readonly int _vertexCount;
 
+        public Prim(int vertexCount, List<Edge> edges)
+        {
+            _vertexCount = vertexCount;
+            _edges = edges;
+        }
+
+        /// <summary>
+        /// Finds the Minimum Spanning Tree (MST) of the graph using Prim's algorithm.
+        /// </summary>
+        /// <param name="startVertex">The vertex to start the algorithm from.</param>
+        /// <returns>A list of edges that form the MST.</returns>
         public List<Edge> GetMinimumSpanningTree(int startVertex)
         {
-            SortedSet<Edge> priorityQueue = new(Comparer<Edge>.Create((x, y) =>
-            {
-                return x.Weight == y.Weight
-                    ? x.Vertex1.CompareTo(y.Vertex1)
-                    : x.Weight.CompareTo(y.Weight);
-            }));
+            var minimumSpanningTree = new List<Edge>();
+            var visited = new bool[_vertexCount];
+            var priorityQueue = new PriorityQueue<Edge, int>();
 
-            Visit(startVertex, priorityQueue);
+            Visit(startVertex, visited, priorityQueue);
 
             while (priorityQueue.Count > 0)
             {
-                Edge? edge = priorityQueue.Min;
-                _ = priorityQueue.Remove(edge);
+                var edge = priorityQueue.Dequeue();
 
-                if (_visited[edge.Vertex1] && _visited[edge.Vertex2])
+                if (visited[edge.Vertex1] && visited[edge.Vertex2])
                     continue;
 
-                _minimumSpanningTree.Add(edge);
+                minimumSpanningTree.Add(edge);
 
-                if (!_visited[edge.Vertex1])
-                    Visit(edge.Vertex1, priorityQueue);
+                if (!visited[edge.Vertex1])
+                    Visit(edge.Vertex1, visited, priorityQueue);
 
-                if (!_visited[edge.Vertex2])
-                    Visit(edge.Vertex2, priorityQueue);
+                if (!visited[edge.Vertex2])
+                    Visit(edge.Vertex2, visited, priorityQueue);
             }
 
-            return _minimumSpanningTree;
+            return minimumSpanningTree;
         }
 
-        private void Visit(int vertex, SortedSet<Edge> priorityQueue)
+        private void Visit(int vertex, bool[] visited, PriorityQueue<Edge, int> priorityQueue)
         {
-            _visited[vertex] = true;
+            visited[vertex] = true;
 
-            foreach (Edge edge in _edges)
+            foreach (var edge in _edges.Where(e => e.Vertex1 == vertex || e.Vertex2 == vertex))
             {
-                if (edge.Vertex1 == vertex && !_visited[edge.Vertex2])
-                    _ = priorityQueue.Add(edge);
+                if (edge.Vertex1 == vertex && !visited[edge.Vertex2])
+                    priorityQueue.Enqueue(edge, edge.Weight);
 
-                if (edge.Vertex2 == vertex && !_visited[edge.Vertex1])
-                    _ = priorityQueue.Add(edge);
+                if (edge.Vertex2 == vertex && !visited[edge.Vertex1])
+                    priorityQueue.Enqueue(edge, edge.Weight);
             }
         }
     }

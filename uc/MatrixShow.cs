@@ -1,809 +1,91 @@
-﻿using Đồ_Thị.Animation;
-using Đồ_Thị.Class;
-using Đồ_Thị.Compoments;
+using DoThi.Animation;
+using DoThi.Class;
+using DoThi.Components;
 using System.Drawing.Drawing2D;
 using System.Reflection;
-using System.Text;
-namespace Đồ_Thị.uc
+
+namespace DoThi.uc
 {
     public partial class MatrixShow : UserControl
     {
         private readonly MatrixBlock _matrixBlock = new();
         private readonly MovingBall _movingBall;
         private GraphData _graphData;
-        private List<Vertex> _vertices = [];
-        private List<Edge> _edges = [];
+        private List<Vertex> _vertices = new();
+        private List<Edge> _edges = new();
         private int[,]? _adjacencyMatrix;
         private int[,]? _weightMatrix;
-        private int _currentMode = 0;
+        private int _currentMode = 0; // 0: Select, 1: Add Vertex, 2: Add Edge, 3: Delete
         private int _selectedVertexIndex = -1;
-        private Vertex startDinh = null;
-        private PointF currentMousePosition;
-        // Vertex and edge settings
-        private const int _vertexRadius = 14;
-        private readonly Brush _vertexColor = Brushes.LightSalmon;
-        private readonly Brush _selectedVertexColor = Brushes.Yellow;
-        private readonly Pen _defaultVertexOutlineColor = Pens.Red;
+        private Vertex? _startVertex = null;
+        private PointF _currentMousePosition;
 
-        // Edge settings
-        private static readonly Brush _edgeWeightColor = Brushes.DarkOrange;
-        private static readonly Brush _edgeWeightOutlineColor = Brushes.Black;
-        private readonly Pen _edgeLineColor = new(Color.MediumPurple, 5);
-        private const int _arrowSize = 18;
-        private static readonly Brush _arrowColor = Brushes.MediumPurple;
-        private const int _vertexOffset = 0;
+        // Drawing settings
+        private const int VertexRadius = 14;
+        private readonly Brush _vertexBrush = Brushes.LightSalmon;
+        private readonly Brush _selectedVertexBrush = Brushes.Yellow;
+        private readonly Pen _vertexOutlinePen = Pens.Red;
+        private readonly Pen _edgePen = new(Color.MediumPurple, 5);
+        private const int ArrowSize = 18;
+        private static readonly Brush ArrowBrush = Brushes.MediumPurple;
 
-        // Background color
-        private readonly Color _background = Color.LightGray;
-
-        //Map
+        // Pan and Zoom
+        private float _zoomLevel = 1.0f;
+        private PointF _panOffset = PointF.Empty;
         private Point _initialMousePosition;
         private bool _isDraggingMap = false;
-
-        // Kruskal_BT zone
-        private float _zoomLevel = 1.0f;
-        private PointF _panOffset = new(0, 0);
-
-        private List<Edge> _additionalEllipseEdges = [];
 
         public MatrixShow()
         {
             InitializeComponent();
             SetDoubleBufferedPanel();
-            ResizeMatrixBlock();
-            UpdateButtonStates();
-            _movingBall = new MovingBall(paneldraw);
-            paneldraw.MouseWheel += new MouseEventHandler(paneldraw_MouseWheel);
+            _movingBall = new MovingBall(panelDraw);
+            panelDraw.MouseWheel += OnPanelDrawMouseWheel;
             txtZoom.Text = _zoomLevel.ToString();
-
         }
 
         private void SetDoubleBufferedPanel()
         {
-            _ = typeof(Panel).InvokeMember("DoubleBuffered", BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic, null, paneldraw, [true]);
+            typeof(Panel).InvokeMember("DoubleBuffered", BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic, null, panelDraw, new object[] { true });
             ResizeRedraw = true;
-        }
-
-        private void ResizeMatrixBlock()
-        {
-            _matrixBlock.Location = new Point(10, 10);
-            _matrixBlock.Size = new Size(100, 100);
         }
 
         private void ShowOrHideMatrixBlock()
         {
-            if (_vertices.Count > 0)
+            if (_vertices.Count > 0 && !panelDraw.Controls.Contains(_matrixBlock))
             {
-                paneldraw.Controls.Add(_matrixBlock);
+                panelDraw.Controls.Add(_matrixBlock);
             }
-            else
+            else if (_vertices.Count == 0 && panelDraw.Controls.Contains(_matrixBlock))
             {
-                paneldraw.Controls.Clear();
+                panelDraw.Controls.Remove(_matrixBlock);
             }
-            paneldraw.Invalidate();
-        }
-        #region Button
-        private void btnAddVertex_Click(object sender, EventArgs e)
-        {
-            _currentMode = 1;
-            UpdateButtonStates();
+            panelDraw.Invalidate();
         }
 
-        private void btnAddEdge_Click(object sender, EventArgs e)
-        {
-            _currentMode = 2;
-            UpdateButtonStates();
-        }
+        #region UI Event Handlers
 
-        private void btnSelect_Click(object sender, EventArgs e)
-        {
-            _currentMode = 0;
-            UpdateButtonStates();
-        }
+        private void btnAddVertex_Click(object sender, EventArgs e) => SetMode(1);
+        private void btnAddEdge_Click(object sender, EventArgs e) => SetMode(2);
+        private void btnSelect_Click(object sender, EventArgs e) => SetMode(0);
+        private void btnDelete_Click(object sender, EventArgs e) => SetMode(3);
 
-        private void btnXoa_Click(object sender, EventArgs e)
+        private void btnClearMovingBall_Click(object sender, EventArgs e)
         {
-            _currentMode = 3;
-            UpdateButtonStates();
-        }
-
-        private void btn_ClearMovingBall_Click(object sender, EventArgs e)
-        {
-            _movingBall.EdgePath = [new Point(-1000, -1000)];
             _movingBall.Stop();
-            paneldraw.Invalidate();
+            _movingBall.EdgePath.Clear();
+            panelDraw.Invalidate();
         }
 
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            ClearData();
-        }
+        private void btnClear_Click(object sender, EventArgs e) => ClearData();
+        private void btnSearch_Click(object sender, EventArgs e) => drpSearch.Show(btnSearchMenu, btnSearchMenu.Width, 0);
+        private void btnGraph_Click(object sender, EventArgs e) => drpGraph.Show(btnGraph, btnGraph.Width, 0);
 
-        private void UpdateButtonStates()
-        {
-            btn_select.Enabled = _currentMode != 0;
-            btn_ThemDinh.Enabled = _currentMode != 1;
-            btn_ThemCanh.Enabled = _currentMode != 2;
-            btn_Xoa.Enabled = _currentMode != 3;
-        }
-
-        private void btn_Search_Click(object sender, EventArgs e)
-        {
-            drTim.Show(btn_SearchMenu, btn_SearchMenu.Width, 0);
-        }
-
-        private void btn_SaveGraph_Click(object sender, EventArgs e)
-        {
-            drMenuGraph.Show(btn_Graph, btn_Graph.Width, 0);
-        }
-        #endregion
         private void rbMatrixType_CheckedChanged(object sender, EventArgs e)
         {
-            if (radio_WeightMatrix.Checked)
-            {
-                _matrixBlock.MatrixType2 = MatrixBlock.MatrixType.Weight;
-            }
-            else if (radio_AdjMatrix.Checked)
-            {
-                _matrixBlock.MatrixType2 = MatrixBlock.MatrixType.Adjacency;
-            }
-        }
-        private void ClearData()
-        {
-            _vertices.Clear();
-            _edges.Clear();
-            _additionalEllipseEdges.Clear();
-            _adjacencyMatrix = new int[0, 0];
-            _weightMatrix = new int[0, 0];
-            _matrixBlock.AdjacencyMatrix = _adjacencyMatrix;
-            _matrixBlock.WeightMatrix = _weightMatrix;
-            paneldraw.Invalidate();
-            ShowOrHideMatrixBlock();
-        }
-        private void UpdateMatrix()
-        {
-            int size = _vertices.Count;
-            _adjacencyMatrix = new int[size, size];
-            _weightMatrix = new int[size, size];
-
-            foreach (Edge edge in _edges)
-            {
-                UpdateMatricesForEdge(edge);
-            }
-
-            _matrixBlock.AdjacencyMatrix = _adjacencyMatrix;
-            _matrixBlock.WeightMatrix = _weightMatrix;
-
-            for (int i = 0; i < _vertices.Count; i++)
-            {
-                _matrixBlock.SetVertexValue(i, _vertices[i].Value);
-            }
-
-            PopulateComboBox();
+            _matrixBlock.MatrixType = radioWeightMatrix.Checked ? MatrixBlock.MatrixType.Weight : MatrixBlock.MatrixType.Adjacency;
         }
 
-        private void UpdateMatricesForEdge(Edge edge)
-        {
-            _adjacencyMatrix[edge.Vertex1, edge.Vertex2] = 1;
-            _weightMatrix[edge.Vertex1, edge.Vertex2] = edge.Weight;
-
-            if (!edge.IsDirected)
-            {
-                _adjacencyMatrix[edge.Vertex2, edge.Vertex1] = 1;
-                _weightMatrix[edge.Vertex2, edge.Vertex1] = edge.Weight;
-            }
-        }
-        private void PopulateComboBox()
-        {
-            cb_First.Items.Clear();
-            cb_Second.Items.Clear();
-
-            foreach (Vertex vertex in _vertices)
-            {
-                cb_First.Items.Add(vertex.Value);
-                cb_Second.Items.Add(vertex.Value);
-            }
-        }
-
-        private void NodeCount()
-        {
-            txtNodeCount.Text = _vertices.Count.ToString();
-        }
-
-        private void paneldraw_Paint(object sender, PaintEventArgs e)
-        {
-            var g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.Clear(_background);
-            g.TranslateTransform(_panOffset.X, _panOffset.Y);
-            g.ScaleTransform(_zoomLevel, _zoomLevel);
-            DrawEdges(g);
-            if (_additionalEllipseEdges != null && _vertices.Count > 0)
-            {
-                foreach (var edges in _additionalEllipseEdges)
-                {
-                    DrawBezierEdge(g, edges);
-                }
-            }
-            DrawVertices(g);
-
-            if (_vertices.Count > 0 && _edges.Count > 0)
-                _movingBall.Draw(g);
-
-            if (_currentMode == 2 && startDinh != null)
-            {
-                g.DrawLine(Pens.Gray, startDinh.Location, currentMousePosition);
-            }
-        }
-
-
-        private void paneldraw_MouseWheel(object sender, MouseEventArgs e)
-        {
-            AdjustZoom(e);
-            paneldraw.Invalidate();
-        }
-        private void AdjustZoom(MouseEventArgs e)
-        {
-            float zoomFactor = e.Delta < 0 ? 1.0f / 1.1f : 1.1f;
-
-            _zoomLevel *= zoomFactor;
-            Point mousePos = e.Location;
-            _panOffset.X = mousePos.X - (mousePos.X - _panOffset.X) * zoomFactor;
-            _panOffset.Y = mousePos.Y - (mousePos.Y - _panOffset.Y) * zoomFactor;
-            txtZoom.Text = _zoomLevel.ToString();
-        }
-
-        private void paneldraw_MouseMove(object sender, MouseEventArgs e)
-        {
-            PointF transformedLocation = TransformMouseCoordinates(e.Location);
-            UpdateCursor(transformedLocation);
-
-            if (e.Button == MouseButtons.Left && IsCursorOnVertex(transformedLocation) != -1 && _currentMode == 0)
-            {
-                MoveVertex(transformedLocation);
-            }
-            else if (e.Button == MouseButtons.Right && _isDraggingMap)
-            {
-                DragMap(e);
-            }
-
-            if (_currentMode == 2 && startDinh != null)
-            {
-                currentMousePosition = transformedLocation;
-                paneldraw.Invalidate();
-            }
-
-            NodeCount();
-        }
-        private void UpdateCursor(PointF location)
-        {
-            paneldraw.Cursor = IsCursorOnVertex(location) != -1 || IsCursorOnEdge(location) ? Cursors.Hand : Cursors.Default;
-        }
-
-        private void MoveVertex(PointF location)
-        {
-            _vertices[IsCursorOnVertex(location)].Location = location;
-            paneldraw.Invalidate();
-        }
-
-        private void DragMap(MouseEventArgs e)
-        {
-            float xOffset = (e.X - _initialMousePosition.X) / _zoomLevel;
-            float yOffset = (e.Y - _initialMousePosition.Y) / _zoomLevel;
-            _panOffset = new PointF(_panOffset.X + xOffset, _panOffset.Y + yOffset);
-            _initialMousePosition = e.Location;
-            paneldraw.Invalidate();
-        }
-        private void paneldraw_MouseDown(object sender, MouseEventArgs e)
-        {
-            PointF transformedLocation = TransformMouseCoordinates(e.Location);
-
-            if (e.Button == MouseButtons.Right)
-            {
-                StartDragging(e);
-            }
-            else if (e.Button == MouseButtons.Left)
-            {
-                HandleLeftMouseDown(e, transformedLocation);
-            }
-        }
-        private void StartDragging(MouseEventArgs e)
-        {
-            _initialMousePosition = e.Location;
-            _isDraggingMap = true;
-        }
-
-        private void HandleLeftMouseDown(MouseEventArgs e, PointF transformedLocation)
-        {
-            switch (_currentMode)
-            {
-                case 0:
-                    HandleSelectVertex(e);
-                    break;
-                case 1:
-                    AddVertex(e);
-                    break;
-                case 2:
-                    startDinh = _vertices.FirstOrDefault(d => Distance(d.Location, transformedLocation) < 10);
-                    break;
-                case 3:
-                    RemoveVertexOrEdge(e.Location);
-                    break;
-            }
-        }
-        private double Distance(PointF p1, PointF p2)
-        {
-            return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
-        }
-        private void paneldraw_MouseUp(object sender, MouseEventArgs e)
-        {
-            PointF transformedLocation = TransformMouseCoordinates(e.Location);
-
-            if (e.Button == MouseButtons.Right && _currentMode == 0)
-                _isDraggingMap = false;
-
-            paneldraw.Invalidate();
-
-            if (_currentMode == 2 && startDinh != null)
-            {
-                HandleEdgeCreation(transformedLocation);
-            }
-        }
-
-        private void HandleEdgeCreation(PointF location)
-        {
-            Vertex endDinh = _vertices.FirstOrDefault(d => Distance(d.Location, location) < 10);
-
-            if (endDinh != null && startDinh != endDinh)
-            {
-                CreateEdge(endDinh);
-            }
-
-            startDinh = null;
-            UpdateMatrix();
-        }
-
-        private void CreateEdge(Vertex endDinh)
-        {
-            int dinh1Index = _vertices.IndexOf(startDinh);
-            int dinh2Index = _vertices.IndexOf(endDinh);
-            bool edgeExists = _edges.Any(edge => (edge.Vertex1 == dinh1Index && edge.Vertex2 == dinh2Index) || (edge.Vertex1 == dinh2Index && edge.Vertex2 == dinh1Index));
-
-            if (edgeExists)
-            {
-                MessageBox.Show("Đã tồn tại cạnh giữa hai đỉnh này.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                ThemCanh formThemCanh = new(_vertices, dinh1Index, dinh2Index);
-                if (formThemCanh.ShowDialog() == DialogResult.OK)
-                {
-                    Edge newCanh = formThemCanh.GetEdge();
-                    _edges.Add(newCanh);
-                    paneldraw.Invalidate();
-                }
-            }
-        }
-
-
-        private void paneldraw_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                PointF transformedLocation = TransformMouseCoordinates(e.Location);
-                int clickedVertexIndex = IsCursorOnVertex(transformedLocation);
-
-                if (clickedVertexIndex != -1)
-                {
-                    HandleVertexDoubleClick(clickedVertexIndex);
-                }
-                else
-                {
-                    HandleEdgeDoubleClick(transformedLocation);
-                }
-            }
-        }
-
-
-        private void HandleVertexDoubleClick(int clickedVertexIndex)
-        {
-            string? newValue = Prompt.ChangeValueDialog("Nhập giá trị mới cho đỉnh", "Sửa đỉnh", _vertices[clickedVertexIndex].Value);
-
-            if (!string.IsNullOrEmpty(newValue))
-            {
-                _vertices[clickedVertexIndex].Value = newValue;
-                _matrixBlock.SetVertexValue(clickedVertexIndex, newValue);
-                paneldraw.Invalidate();
-                UpdateMatrix();
-                ShowOrHideMatrixBlock();
-            }
-        }
-
-
-        private void HandleEdgeDoubleClick(PointF clickLocation)
-        {
-            foreach (Edge edge in _edges)
-            {
-                PointF p1 = _vertices[edge.Vertex1].Location;
-                PointF p2 = _vertices[edge.Vertex2].Location;
-
-                if (IsPointOnEdge(clickLocation, p1, p2) || IsCursorNearWeight(clickLocation, p1, p2))
-                {
-                    HandleEdgeWeightChange(edge);
-                    break;
-                }
-            }
-        }
-
-        private void HandleEdgeWeightChange(Edge edge)
-        {
-            while (true)
-            {
-                (string, bool)? result = Prompt.ChangeValueDialog("Nhập giá trị mới cho cạnh", "Sửa cạnh", edge.Weight.ToString(), edge.IsDirected);
-
-                if (result == null)
-                {
-                    break;
-                }
-
-                if (TryUpdateEdgeWeight(edge, result.Value.Item1, result.Value.Item2))
-                {
-                    break;
-                }
-                else
-                {
-                    MessageBox.Show("Giá trị không hợp lệ. Vui lòng nhập lại.", "Cảnh Báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
-                }
-            }
-        }
-        private bool TryUpdateEdgeWeight(Edge edge, string newWeightStr, bool isDirected)
-        {
-            if (int.TryParse(newWeightStr, out int newWeight))
-            {
-                edge.Weight = newWeight;
-                edge.IsDirected = isDirected;
-
-                // If the edge is not directed, remove any reverse edge
-                if (!edge.IsDirected)
-                {
-                    _edges.RemoveAll(e => e.Vertex1 == edge.Vertex2 && e.Vertex2 == edge.Vertex1);
-                }
-                else
-                {
-                    // For directed edges, ensure reverse edge exists and update its weight if necessary
-                    Edge reverseEdge = _edges.FirstOrDefault(e => e.Vertex1 == edge.Vertex2 && e.Vertex2 == edge.Vertex1);
-                    if (reverseEdge != null)
-                    {
-                        reverseEdge.Weight = newWeight;
-                        reverseEdge.IsDirected = isDirected;
-                    }
-                }
-
-                paneldraw.Invalidate();
-                UpdateMatrix();
-                return true;
-            }
-            return false;
-        }
-
-        private PointF TransformMouseCoordinates(PointF mouseLocation)
-        {
-            return new PointF(
-                (mouseLocation.X - _panOffset.X) / _zoomLevel,
-                (mouseLocation.Y - _panOffset.Y) / _zoomLevel
-            );
-        }
-        private void HandleSelectVertex(MouseEventArgs e)
-        {
-            PointF transformedLocation = TransformMouseCoordinates(e.Location);
-            _selectedVertexIndex = IsCursorOnVertex(transformedLocation);
-            paneldraw.Invalidate();
-        }
-
-        private int IsCursorOnVertex(PointF location)
-        {
-            for (int i = 0; i < _vertices.Count; i++)
-            {
-                if (IsPointOnVertex(location, _vertices[i].Location, _vertexRadius))
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-
-        private static bool IsPointOnVertex(PointF point, PointF circleCenter, int radius)
-        {
-            return (Math.Pow(point.X - circleCenter.X, 2) + Math.Pow(point.Y - circleCenter.Y, 2)) <= Math.Pow(radius, 2);
-        }
-
-        private bool IsPointOnEdge(PointF point, PointF p1, PointF p2)
-        {
-            const double tolerance = 3.0; // Adjust this value as needed
-            double distance = DistancePointToLineSegment(point, p1, p2);
-            return distance <= tolerance;
-        }
-
-        private void AddVertex(MouseEventArgs e)
-        {
-            // Adjust for pan offset and zoom level
-            float zoomFactor = _zoomLevel;
-
-
-            // Calculate mouse position in the zoomed and panned coordinate system
-            int x = (int)((e.X - _panOffset.X) / zoomFactor);
-            int y = (int)((e.Y - _panOffset.Y) / zoomFactor);
-
-            // Ensure x and y are within bounds
-            x = Math.Clamp(x, _vertexRadius, paneldraw.Width - _vertexRadius);
-            y = Math.Clamp(y, _vertexRadius, paneldraw.Height - _vertexRadius);
-
-            string vertexValue;
-            bool isValidInput = false;
-            do
-            {
-                vertexValue = Prompt.ShowDialog("Nhập tên đỉnh:", "Thêm đỉnh");
-
-                if (vertexValue == "")
-                    return;
-
-                if (string.IsNullOrWhiteSpace(vertexValue))
-                {
-                    _ = MessageBox.Show("Tên Đỉnh Không Được Trống.", "Cảnh Báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
-                }
-                else if (_vertices.Any(v => v.Value == vertexValue))
-                {
-                    _ = MessageBox.Show("Tên đỉnh đã tồn tại. Vui lòng nhập tên khác.", "Cảnh Báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
-                }
-                else
-                {
-                    isValidInput = true;
-                }
-
-            } while (!isValidInput);
-
-            _vertices.Add(new Vertex(new Point(x, y), vertexValue));
-            _matrixBlock.SetVertexValue(_vertices.Count - 1, vertexValue);
-            UpdateMatrix();
-            paneldraw.Invalidate();
-            ShowOrHideMatrixBlock();
-        }
-        private void RemoveVertexOrEdge(PointF clickLocation)
-        {
-            PointF transformedLocation = TransformMouseCoordinates(clickLocation);
-            int clickedVertexIndex = IsCursorOnVertex(transformedLocation);
-            if (clickedVertexIndex != -1)
-            {
-                RemoveVertex(clickedVertexIndex);
-                return;
-            }
-            RemoveEdge(transformedLocation);
-            UpdateMatrix();
-            paneldraw.Invalidate();
-        }
-        private void RemoveVertex(int vertexIndex)
-        {
-            _vertices.RemoveAt(vertexIndex);
-            _edges.RemoveAll(edge => edge.Vertex1 == vertexIndex || edge.Vertex2 == vertexIndex);
-
-            // Update edge indices
-            foreach (Edge edge in _edges)
-            {
-                if (edge.Vertex1 > vertexIndex)
-                {
-                    edge.Vertex1--;
-                }
-                if (edge.Vertex2 > vertexIndex)
-                {
-                    edge.Vertex2--;
-                }
-            }
-
-            UpdateMatrix();
-            paneldraw.Invalidate();
-        }
-        private void RemoveEdge(PointF clickLocation)
-        {
-            List<Edge> edgesToRemove = _edges.Where(edge =>
-            {
-                PointF p1 = _vertices[edge.Vertex1].Location;
-                PointF p2 = _vertices[edge.Vertex2].Location;
-                return IsPointOnEdge(clickLocation, p1, p2) || IsCursorNearWeight(clickLocation, p1, p2);
-            }).ToList();
-
-            if (edgesToRemove.Count > 0)
-            {
-                foreach (Edge edge in edgesToRemove)
-                {
-                    _edges.Remove(edge);
-                }
-            }
-
-            UpdateMatrix();
-            paneldraw.Invalidate();
-        }
-        private bool IsCursorOnEdge(PointF cursorLocation)
-        {
-            const double tolerance = 5.0; // Adjust this value as needed
-            foreach (Edge edge in _edges)
-            {
-                PointF p1 = _vertices[edge.Vertex1].Location;
-                PointF p2 = _vertices[edge.Vertex2].Location;
-                double distance = DistancePointToLineSegment(cursorLocation, p1, p2);
-
-                if (distance < tolerance)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-        private static bool IsCursorNearWeight(PointF cursorLocation, PointF p1, PointF p2)
-        {
-            float midX = (p1.X + p2.X) / 2;
-            float midY = (p1.Y + p2.Y) / 2;
-
-            float dx = cursorLocation.X - midX;
-            float dy = cursorLocation.Y - midY;
-            float distance = (float)Math.Sqrt(dx * dx + dy * dy);
-
-            const float selectionRadius = 16.0f;
-            return distance <= selectionRadius;
-        }
-
-        private void DrawVertices(Graphics g)
-        {
-            foreach (Vertex vertex in _vertices)
-            {
-                Brush vertexBrush = _vertices.IndexOf(vertex) == _selectedVertexIndex ? _selectedVertexColor : _vertexColor;
-                g.FillEllipse(vertexBrush, vertex.Location.X - _vertexRadius, vertex.Location.Y - _vertexRadius, 2 * _vertexRadius, 2 * _vertexRadius);
-                g.DrawEllipse(_defaultVertexOutlineColor, vertex.Location.X - _vertexRadius, vertex.Location.Y - _vertexRadius, 2 * _vertexRadius, 2 * _vertexRadius);
-                SizeF stringSize = g.MeasureString(vertex.Value, Font);
-                g.DrawString(vertex.Value, Font, Brushes.Black, vertex.Location.X - stringSize.Width / 2, vertex.Location.Y - stringSize.Height / 2);
-            }
-        }
-
-        private void DrawEdges(Graphics g)
-        {
-            foreach (Edge edge in _edges)
-            {
-                PointF p1 = _vertices[edge.Vertex1].Location;
-                PointF p2 = _vertices[edge.Vertex2].Location;
-                if (edge.Vertex1 == edge.Vertex2)
-                {
-                    DrawSelfLoop(g, p1, edge.Weight, edge.IsDirected); // Sử dụng màu đen cho các cạnh chính
-                }
-                else
-                {
-                    DrawArrow(g, p1, p2, edge.Weight, edge.IsDirected); // Sử dụng màu đen cho các cạnh chính
-                }
-            }
-        }
-
-        private void DrawArrow(Graphics g, PointF p1, PointF p2, int weight, bool isDirected)
-        {
-            float angle = (float)Math.Atan2(p2.Y - p1.Y, p2.X - p1.X);
-            PointF startPoint = new(p2.X - (_vertexRadius + _vertexOffset) * (float)Math.Cos(angle),
-                                    p2.Y - (_vertexRadius + _vertexOffset) * (float)Math.Sin(angle));
-
-            g.DrawLine(_edgeLineColor, p1, startPoint);
-
-            if (isDirected)
-            {
-                DrawArrowHead(g, startPoint, angle);
-            }
-
-            DrawEdgeWeight(g, p1, p2, weight);
-        }
-        private static void DrawArrowHead(Graphics g, PointF startPoint, float angle)
-        {
-            PointF[] arrowHeadPoints =
-            {
-                new(startPoint.X, startPoint.Y),
-                new(startPoint.X - _arrowSize * (float)Math.Cos(angle - Math.PI / 6), startPoint.Y - _arrowSize * (float)Math.Sin(angle - Math.PI / 6)),
-                new(startPoint.X - _arrowSize * (float)Math.Cos(angle + Math.PI / 6), startPoint.Y - _arrowSize * (float)Math.Sin(angle + Math.PI / 6))
-            };
-            g.FillPolygon(_arrowColor, arrowHeadPoints);
-        }
-
-        private static void DrawEdgeWeight(Graphics g, PointF p1, PointF p2, int weight)
-        {
-            if (weight == 0) return;
-
-            float midX = (p1.X + p2.X) / 2;
-            float midY = (p1.Y + p2.Y) / 2;
-            RectangleF squareRect = new(midX - 9, midY - 9, 18, 18);
-
-            g.FillRectangle(_edgeWeightOutlineColor, squareRect);
-            g.FillRectangle(_edgeWeightColor, squareRect);
-
-            using Font font = new("Arial", 12);
-            SizeF textSize = g.MeasureString(weight.ToString(), font);
-            PointF textLocation = new(midX - textSize.Width / 2, midY - textSize.Height / 2);
-            g.DrawString(weight.ToString(), font, Brushes.Black, textLocation);
-        }
-
-        private void DrawSelfLoop(Graphics g, PointF location, int weight, bool isDirected)
-        {
-            float radius = 20;
-            Rectangle selfLoopRect = new((int)(location.X - radius), (int)(location.Y - radius), (int)(2 * radius), (int)(2 * radius));
-            g.DrawEllipse(_edgeLineColor, selfLoopRect);
-            if (isDirected)
-            {
-                DrawSelfLoopArrow(g, location, radius);
-            }
-
-            using Font font = new("Arial", 10);
-            PointF weightLocation = new(location.X + radius, location.Y - radius);
-            g.DrawString(weight.ToString(), font, Brushes.Black, weightLocation);
-        }
-
-        private static void DrawSelfLoopArrow(Graphics g, PointF location, float radius)
-        {
-            double angle = -45;
-            double radian = angle * Math.PI / 180;
-            float arrowX = location.X + (float)(radius * Math.Cos(radian));
-            float arrowY = location.Y + (float)(radius * Math.Sin(radian));
-
-            PointF[] arrowHead =
-            {
-                new(arrowX, arrowY),
-                new(arrowX - 5, arrowY + 5),
-                new(arrowX + 5, arrowY + 5)
-            };
-            g.FillPolygon(Brushes.Black, arrowHead);
-        }
-        private double DistancePointToLineSegment(PointF point, PointF p1, PointF p2)
-        {
-            float A = point.X - p1.X;
-            float B = point.Y - p1.Y;
-            float C = p2.X - p1.X;
-            float D = p2.Y - p1.Y;
-
-            float dot = A * C + B * D;
-            float lenSq = C * C + D * D;
-            float param = (lenSq != 0) ? dot / lenSq : -1;
-
-            float xx, yy;
-
-            if (param < 0)
-            {
-                xx = p1.X;
-                yy = p1.Y;
-            }
-            else if (param > 1)
-            {
-                xx = p2.X;
-                yy = p2.Y;
-            }
-            else
-            {
-                xx = p1.X + param * C;
-                yy = p1.Y + param * D;
-            }
-
-            float dx = point.X - xx;
-            float dy = point.Y - yy;
-            return Math.Sqrt(dx * dx + dy * dy);
-        }
-        public void DrawBezierEdge(Graphics g, Edge edge)
-        {
-            // Tính toán điểm bắt đầu và điểm kết thúc của ellipse
-            PointF p1 = _vertices[edge.Vertex1].Location;
-            PointF p2 = _vertices[edge.Vertex2].Location;
-            // Tính toán điểm điều khiển của đường cong Bézier
-            PointF midpoint = new((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2);
-            float distance = (float)Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
-            float controlPointOffset = distance / 8;
-            PointF controlPoint = new(midpoint.X + controlPointOffset, midpoint.Y - controlPointOffset);
-            using Pen pen = new(Color.Black, 2);
-            pen.DashPattern = [10, 3];
-            g.DrawBezier(pen, p1, controlPoint, controlPoint, p2);
-        }
-        #region Save and Load Graph
         private void saveGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _graphData = new GraphData
@@ -813,410 +95,699 @@ namespace Đồ_Thị.uc
                 AdjacencyMatrix = _adjacencyMatrix,
                 WeightMatrix = _weightMatrix
             };
-            _graphData.SaveGraph();
+            _graphData.Save();
         }
 
         private void loadGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ClearData();
-            GraphData loadedGraph = GraphData.OpenGraphFile();
+            var loadedGraph = GraphData.OpenFile();
+            if (loadedGraph == null) return;
 
-            if (loadedGraph != null)
-            {
-                _ = MessageBox.Show("Load Thành Công.");
-                _vertices = loadedGraph.Vertices;
-                _edges = loadedGraph.Edges;
-                _adjacencyMatrix = loadedGraph.AdjacencyMatrix;
-                _weightMatrix = loadedGraph.WeightMatrix;
-            }
-            paneldraw.Invalidate();
+            MessageBox.Show("Graph loaded successfully.");
+            _vertices = loadedGraph.Vertices;
+            _edges = loadedGraph.Edges;
+            _adjacencyMatrix = loadedGraph.AdjacencyMatrix;
+            _weightMatrix = loadedGraph.WeightMatrix;
+
+            panelDraw.Invalidate();
             ShowOrHideMatrixBlock();
-            UpdateMatrix();
+            UpdateMatrices();
         }
+
+        private void btnExportMatrix_Click(object sender, EventArgs e)
+        {
+            if (_vertices.Count < 2)
+            {
+                MessageBox.Show("The graph must have at least 2 vertices.");
+                return;
+            }
+
+            var exporter = new GraphExporter(_vertices);
+            var matrixToSave = radioAdjMatrix.Checked ? _adjacencyMatrix : _weightMatrix;
+            if (matrixToSave != null)
+            {
+                exporter.SaveMatrixToFile(matrixToSave);
+            }
+        }
+
         #endregion
 
-        #region Nút kích hoạt thuật toán
-        private void DFS_Click(object sender, EventArgs e)
+        private void SetMode(int mode)
         {
-            if (cb_First != null && cb_First.SelectedIndex != -1)
+            _currentMode = mode;
+            btnSelect.Enabled = _currentMode != 0;
+            btnAddVertex.Enabled = _currentMode != 1;
+            btnAddEdge.Enabled = _currentMode != 2;
+            btnDelete.Enabled = _currentMode != 3;
+        }
+
+        private void ClearData()
+        {
+            _vertices.Clear();
+            _edges.Clear();
+            _adjacencyMatrix = new int[0, 0];
+            _weightMatrix = new int[0, 0];
+            _matrixBlock.Reset();
+            panelDraw.Invalidate();
+            ShowOrHideMatrixBlock();
+        }
+
+        private void UpdateMatrices()
+        {
+            int size = _vertices.Count;
+            _adjacencyMatrix = new int[size, size];
+            _weightMatrix = new int[size, size];
+
+            foreach (var edge in _edges)
             {
-                string? selectedVertexValue = cb_First.SelectedItem as string;
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == selectedVertexValue);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
+                _adjacencyMatrix[edge.Vertex1, edge.Vertex2] = 1;
+                _weightMatrix[edge.Vertex1, edge.Vertex2] = edge.Weight;
+                if (!edge.IsDirected)
                 {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
-                    return;
+                    _adjacencyMatrix[edge.Vertex2, edge.Vertex1] = 1;
+                    _weightMatrix[edge.Vertex2, edge.Vertex1] = edge.Weight;
                 }
-                if (startVertexIndex != -1)
+            }
+
+            _matrixBlock.AdjacencyMatrix = _adjacencyMatrix;
+            _matrixBlock.WeightMatrix = _weightMatrix;
+            for (int i = 0; i < _vertices.Count; i++)
+            {
+                _matrixBlock.SetVertexValue(i, _vertices[i].Value);
+            }
+
+            PopulateComboBoxes();
+        }
+
+        private void PopulateComboBoxes()
+        {
+            cbStartVertex.Items.Clear();
+            cbEndVertex.Items.Clear();
+            foreach (var vertex in _vertices)
+            {
+                cbStartVertex.Items.Add(vertex.Value);
+                cbEndVertex.Items.Add(vertex.Value);
+            }
+        }
+
+        #region Panel Drawing and Mouse Events
+
+        private void panelDraw_Paint(object sender, PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.Clear(Color.LightGray);
+            g.TranslateTransform(_panOffset.X, _panOffset.Y);
+            g.ScaleTransform(_zoomLevel, _zoomLevel);
+
+            DrawEdges(g);
+            DrawVertices(g);
+            _movingBall.Draw(g);
+
+            if (_currentMode == 2 && _startVertex != null)
+            {
+                g.DrawLine(Pens.Gray, _startVertex.Location, _currentMousePosition);
+            }
+        }
+
+        private void OnPanelDrawMouseWheel(object? sender, MouseEventArgs e)
+        {
+            float zoomFactor = e.Delta < 0 ? 1.0f / 1.1f : 1.1f;
+            _zoomLevel *= zoomFactor;
+            _panOffset.X = e.X - (e.X - _panOffset.X) * zoomFactor;
+            _panOffset.Y = e.Y - (e.Y - _panOffset.Y) * zoomFactor;
+            txtZoom.Text = _zoomLevel.ToString("F2");
+            panelDraw.Invalidate();
+        }
+
+        private void panelDraw_MouseMove(object sender, MouseEventArgs e)
+        {
+            var transformedLocation = TransformMouseCoordinates(e.Location);
+            panelDraw.Cursor = GetVertexAt(transformedLocation) != -1 || IsCursorOnEdge(transformedLocation) ? Cursors.Hand : Cursors.Default;
+
+            if (e.Button == MouseButtons.Left && _currentMode == 0 && GetVertexAt(transformedLocation) != -1)
+            {
+                _vertices[GetVertexAt(transformedLocation)].Location = transformedLocation;
+                panelDraw.Invalidate();
+            }
+            else if (e.Button == MouseButtons.Right && _isDraggingMap)
+            {
+                _panOffset.X += (e.X - _initialMousePosition.X);
+                _panOffset.Y += (e.Y - _initialMousePosition.Y);
+                _initialMousePosition = e.Location;
+                panelDraw.Invalidate();
+            }
+
+            if (_currentMode == 2 && _startVertex != null)
+            {
+                _currentMousePosition = transformedLocation;
+                panelDraw.Invalidate();
+            }
+        }
+
+        private void panelDraw_MouseDown(object sender, MouseEventArgs e)
+        {
+            var transformedLocation = TransformMouseCoordinates(e.Location);
+
+            if (e.Button == MouseButtons.Right)
+            {
+                _initialMousePosition = e.Location;
+                _isDraggingMap = true;
+            }
+            else if (e.Button == MouseButtons.Left)
+            {
+                switch (_currentMode)
                 {
-                    DFS dfs = new(_adjacencyMatrix);
-                    List<int> result = dfs.PerformDFS(startVertexIndex);
-                    List<PointF> dfsPath = [];
-                    foreach (int vertexIndex in result)
-                    {
-                        PointF vertexLocation = _vertices[vertexIndex].Location;
-                        dfsPath.Add(vertexLocation);
-                    }
-                    if (dfsPath.Count > 0)
-                        dfsPath.Add(dfsPath[^1]);
-                    _movingBall.EdgePath = dfsPath;
-                    _movingBall.Start();
-                    _ = MessageBox.Show($"Duyệt DFS bắt đầu từ đỉnh {selectedVertexValue}: \n" + string.Join(" -> ", result.Select(v => _vertices[v].Value)));
-                    btn_ClearMovingBall.PerformClick();
-                    ShowOrHideMatrixBlock();
-                    UpdateMatrix();
+                    case 0: // Select
+                        _selectedVertexIndex = GetVertexAt(transformedLocation);
+                        panelDraw.Invalidate();
+                        break;
+                    case 1: // Add Vertex
+                        AddVertex(transformedLocation);
+                        break;
+                    case 2: // Add Edge
+                        _startVertex = _vertices.FirstOrDefault(v => IsPointOnVertex(transformedLocation, v.Location, VertexRadius));
+                        break;
+                    case 3: // Delete
+                        DeleteVertexOrEdge(transformedLocation);
+                        break;
+                }
+            }
+        }
+
+        private void panelDraw_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                _isDraggingMap = false;
+            }
+            else if (_currentMode == 2 && _startVertex != null)
+            {
+                var endVertex = _vertices.FirstOrDefault(v => IsPointOnVertex(TransformMouseCoordinates(e.Location), v.Location, VertexRadius));
+                if (endVertex != null && _startVertex != endVertex)
+                {
+                    CreateEdge(endVertex);
+                }
+                _startVertex = null;
+                UpdateMatrices();
+                panelDraw.Invalidate();
+            }
+        }
+
+        private void panelDraw_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+
+            var transformedLocation = TransformMouseCoordinates(e.Location);
+            int clickedVertexIndex = GetVertexAt(transformedLocation);
+
+            if (clickedVertexIndex != -1)
+            {
+                EditVertex(clickedVertexIndex);
+            }
+            else
+            {
+                EditEdge(transformedLocation);
+            }
+        }
+
+        #endregion
+
+        #region Graph Manipulation
+
+        private void AddVertex(PointF location)
+        {
+            string vertexValue;
+            do
+            {
+                vertexValue = Prompt.ShowDialog("Enter vertex name:", "Add Vertex");
+                if (string.IsNullOrEmpty(vertexValue)) return;
+                if (string.IsNullOrWhiteSpace(vertexValue))
+                {
+                    MessageBox.Show("Vertex name cannot be empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else if (_vertices.Any(v => v.Value == vertexValue))
+                {
+                    MessageBox.Show("Vertex name already exists. Please enter a different name.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    _ = MessageBox.Show("Không tìm thấy đỉnh phù hợp. Vui lòng chọn một đỉnh khác.");
+                    break;
+                }
+            } while (true);
+
+            _vertices.Add(new Vertex(location, vertexValue));
+            _matrixBlock.SetVertexValue(_vertices.Count - 1, vertexValue);
+            UpdateMatrices();
+            panelDraw.Invalidate();
+            ShowOrHideMatrixBlock();
+        }
+
+        private void EditVertex(int vertexIndex)
+        {
+            string? newValue = Prompt.ChangeValueDialog("Enter new vertex value:", "Edit Vertex", _vertices[vertexIndex].Value);
+            if (string.IsNullOrEmpty(newValue)) return;
+
+            _vertices[vertexIndex] = new Vertex(_vertices[vertexIndex].Location, newValue);
+            _matrixBlock.SetVertexValue(vertexIndex, newValue);
+            panelDraw.Invalidate();
+            UpdateMatrices();
+        }
+
+        private void CreateEdge(Vertex endVertex)
+        {
+            int startVertexIndex = _vertices.IndexOf(_startVertex!);
+            int endVertexIndex = _vertices.IndexOf(endVertex);
+
+            if (_edges.Any(edge => (edge.Vertex1 == startVertexIndex && edge.Vertex2 == endVertexIndex) || (edge.Vertex1 == endVertexIndex && edge.Vertex2 == startVertexIndex)))
+            {
+                MessageBox.Show("An edge between these two vertices already exists.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var addEdgeForm = new AddEdge(_vertices, startVertexIndex, endVertexIndex);
+            if (addEdgeForm.ShowDialog() == DialogResult.OK)
+            {
+                _edges.Add(addEdgeForm.GetEdge());
+                panelDraw.Invalidate();
+            }
+        }
+
+        private void EditEdge(PointF clickLocation)
+        {
+            foreach (var edge in _edges)
+            {
+                var p1 = _vertices[edge.Vertex1].Location;
+                var p2 = _vertices[edge.Vertex2].Location;
+                if (!IsPointOnEdge(clickLocation, p1, p2) && !IsCursorNearWeight(clickLocation, p1, p2)) continue;
+
+                var result = Prompt.ShowChangeValueDialog("Enter new edge value:", "Edit Edge", edge.Weight.ToString());
+                if (result == null) break;
+
+                if (int.TryParse(result.Value.Item1, out int newWeight))
+                {
+                    var newEdge = new Edge(edge.Vertex1, edge.Vertex2, newWeight, result.Value.Item2);
+                    _edges.Remove(edge);
+                    _edges.Add(newEdge);
+                    panelDraw.Invalidate();
+                    UpdateMatrices();
+                }
+                else
+                {
+                    MessageBox.Show("Invalid weight value. Please enter a number.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                break;
+            }
+        }
+
+        private void DeleteVertexOrEdge(PointF clickLocation)
+        {
+            int clickedVertexIndex = GetVertexAt(clickLocation);
+            if (clickedVertexIndex != -1)
+            {
+                _vertices.RemoveAt(clickedVertexIndex);
+                _edges.RemoveAll(edge => edge.Vertex1 == clickedVertexIndex || edge.Vertex2 == clickedVertexIndex);
+                foreach (var edge in _edges)
+                {
+                    if (edge.Vertex1 > clickedVertexIndex) _edges[_edges.IndexOf(edge)] = new Edge(edge.Vertex1 - 1, edge.Vertex2, edge.Weight, edge.IsDirected);
+                    if (edge.Vertex2 > clickedVertexIndex) _edges[_edges.IndexOf(edge)] = new Edge(edge.Vertex1, edge.Vertex2 - 1, edge.Weight, edge.IsDirected);
                 }
             }
             else
             {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu duyệt DFS.");
-                _ = cb_First!.Focus();
-                paneldraw.Invalidate();
+                _edges.RemoveAll(edge => IsPointOnEdge(clickLocation, _vertices[edge.Vertex1].Location, _vertices[edge.Vertex2].Location) || IsCursorNearWeight(clickLocation, _vertices[edge.Vertex1].Location, _vertices[edge.Vertex2].Location));
             }
+            UpdateMatrices();
+            panelDraw.Invalidate();
+        }
+
+        #endregion
+
+        #region Drawing
+
+        private void DrawVertices(Graphics g)
+        {
+            foreach (var vertex in _vertices)
+            {
+                var vertexBrush = _vertices.IndexOf(vertex) == _selectedVertexIndex ? _selectedVertexBrush : _vertexBrush;
+                g.FillEllipse(vertexBrush, vertex.Location.X - VertexRadius, vertex.Location.Y - VertexRadius, 2 * VertexRadius, 2 * VertexRadius);
+                g.DrawEllipse(_vertexOutlinePen, vertex.Location.X - VertexRadius, vertex.Location.Y - VertexRadius, 2 * VertexRadius, 2 * VertexRadius);
+                var stringSize = g.MeasureString(vertex.Value, Font);
+                g.DrawString(vertex.Value, Font, Brushes.Black, vertex.Location.X - stringSize.Width / 2, vertex.Location.Y - stringSize.Height / 2);
+            }
+        }
+
+        private void DrawEdges(Graphics g)
+        {
+            foreach (var edge in _edges)
+            {
+                var p1 = _vertices[edge.Vertex1].Location;
+                var p2 = _vertices[edge.Vertex2].Location;
+                if (edge.Vertex1 == edge.Vertex2)
+                {
+                    DrawSelfLoop(g, p1, edge.Weight, edge.IsDirected, _edgePen);
+                }
+                else
+                {
+                    DrawArrow(g, p1, p2, edge.Weight, edge.IsDirected, _edgePen);
+                }
+            }
+        }
+
+        private void DrawSelfLoop(Graphics g, PointF location, int weight, bool isDirected, Pen pen)
+        {
+            int radius = 20;
+            var selfLoopRect = new Rectangle((int)(location.X - radius), (int)(location.Y - radius), 2 * radius, 2 * radius);
+            g.DrawEllipse(pen, selfLoopRect);
+
+            if (isDirected)
+            {
+                double angle = -45 * Math.PI / 180;
+                float arrowX = location.X + (float)(radius * Math.Cos(angle));
+                float arrowY = location.Y + (float)(radius * Math.Sin(angle));
+                var arrowHead = new PointF[]
+                {
+                    new(arrowX, arrowY),
+                    new(arrowX - 5, arrowY + 5),
+                    new(arrowX + 5, arrowY + 5)
+                };
+                g.FillPolygon(Brushes.Black, arrowHead);
+            }
+
+            using var font = new Font("Arial", 10);
+            g.DrawString(weight.ToString(), font, Brushes.Black, new PointF(location.X + radius, location.Y - radius));
+        }
+
+        private void DrawArrow(Graphics g, PointF p1, PointF p2, int weight, bool isDirected, Pen pen)
+        {
+            float angle = (float)Math.Atan2(p2.Y - p1.Y, p2.X - p1.X);
+            var startPoint = new PointF(p2.X - VertexRadius * (float)Math.Cos(angle), p2.Y - VertexRadius * (float)Math.Sin(angle));
+            g.DrawLine(pen, p1, startPoint);
+
+            if (isDirected)
+            {
+                var arrowHead = new PointF[]
+                {
+                    startPoint,
+                    new(startPoint.X - ArrowSize * (float)Math.Cos(angle - Math.PI / 8), startPoint.Y - ArrowSize * (float)Math.Sin(angle - Math.PI / 8)),
+                    new(startPoint.X - ArrowSize * (float)Math.Cos(angle + Math.PI / 8), startPoint.Y - ArrowSize * (float)Math.Sin(angle + Math.PI / 8))
+                };
+                g.FillPolygon(ArrowBrush, arrowHead);
+            }
+
+            if (weight == 0) return;
+            float midX = (p1.X + p2.X) / 2;
+            float midY = (p1.Y + p2.Y) / 2;
+            var squareRect = new RectangleF(midX - 9, midY - 9, 18, 18);
+            g.FillRectangle(Brushes.DarkOrange, squareRect);
+            using var font = new Font("Arial", 12);
+            var textSize = g.MeasureString(weight.ToString(), font);
+            g.DrawString(weight.ToString(), font, Brushes.Black, new PointF(midX - textSize.Width / 2, midY - textSize.Height / 2));
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private int GetVertexAt(PointF location)
+        {
+            for (int i = 0; i < _vertices.Count; i++)
+            {
+                if (IsPointOnVertex(location, _vertices[i].Location, VertexRadius))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private static bool IsPointOnVertex(PointF point, PointF circleCenter, int radius) =>
+            Math.Pow(point.X - circleCenter.X, 2) + Math.Pow(point.Y - circleCenter.Y, 2) <= Math.Pow(radius, 2);
+
+        private bool IsPointOnEdge(PointF point, PointF p1, PointF p2)
+        {
+            const double tolerance = 3.0;
+            double distance = DistancePointToLineSegment(point, p1, p2);
+            return distance <= tolerance;
+        }
+
+        private bool IsCursorOnEdge(PointF cursorLocation) =>
+            _edges.Any(edge => IsPointOnEdge(cursorLocation, _vertices[edge.Vertex1].Location, _vertices[edge.Vertex2].Location));
+
+        private static bool IsCursorNearWeight(PointF cursorLocation, PointF p1, PointF p2)
+        {
+            float midX = (p1.X + p2.X) / 2;
+            float midY = (p1.Y + p2.Y) / 2;
+            float dx = cursorLocation.X - midX;
+            float dy = cursorLocation.Y - midY;
+            return Math.Sqrt(dx * dx + dy * dy) <= 16.0f;
+        }
+
+        private PointF TransformMouseCoordinates(PointF mouseLocation) =>
+            new((mouseLocation.X - _panOffset.X) / _zoomLevel, (mouseLocation.Y - _panOffset.Y) / _zoomLevel);
+
+        private static double DistancePointToLineSegment(PointF point, PointF p1, PointF p2)
+        {
+            float dx = p2.X - p1.X;
+            float dy = p2.Y - p1.Y;
+            if (dx == 0 && dy == 0) return Math.Sqrt(Math.Pow(point.X - p1.X, 2) + Math.Pow(point.Y - p1.Y, 2));
+
+            float t = ((point.X - p1.X) * dx + (point.Y - p1.Y) * dy) / (dx * dx + dy * dy);
+            t = Math.Max(0, Math.Min(1, t));
+
+            return Math.Sqrt(Math.Pow(point.X - (p1.X + t * dx), 2) + Math.Pow(point.Y - (p1.Y + t * dy), 2));
+        }
+
+        #endregion
+
+        #region Algorithms
+
+        private void DFS_Click(object sender, EventArgs e)
+        {
+            if (cbStartVertex.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a starting vertex for DFS.");
+                return;
+            }
+
+            var startVertexIndex = _vertices.FindIndex(v => v.Value == cbStartVertex.SelectedItem.ToString());
+            var connectivity = new GraphConnectivity(_vertices, _edges);
+            if (!connectivity.IsConnected())
+            {
+                MessageBox.Show("The graph is not connected.");
+                return;
+            }
+
+            var dfs = new DFS(_adjacencyMatrix!);
+            var result = dfs.Perform(startVertexIndex);
+            var dfsPath = result.Select(vertexIndex => _vertices[vertexIndex].Location).ToList();
+
+            _movingBall.EdgePath = dfsPath;
+            _movingBall.Start();
+            MessageBox.Show($"DFS traversal starting from {_vertices[startVertexIndex].Value}: \n" + string.Join(" -> ", result.Select(v => _vertices[v].Value)));
+            btnClearMovingBall.PerformClick();
         }
 
         private void BFS_Click(object sender, EventArgs e)
         {
-            if (cb_First != null && cb_First.SelectedIndex != -1)
+            if (cbStartVertex.SelectedIndex == -1)
             {
-                string? selectedVertexValue = cb_First.SelectedItem as string;
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == selectedVertexValue);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
-                {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
-                    return;
-                }
-                if (startVertexIndex != -1)
-                {
-                    BFS bfs = new(_adjacencyMatrix, _vertices);
-                    (List<int> result, List<string> adjacencyLog) = bfs.PerformBFS(startVertexIndex);
-                    List<PointF> bfsPath = [];
-
-                    foreach (int vertexIndex in result)
-                    {
-                        PointF vertexLocation = _vertices[vertexIndex].Location;
-                        bfsPath.Add(vertexLocation);
-                    }
-
-                    if (bfsPath.Count > 0)
-                        bfsPath.Add(bfsPath[bfsPath.Count - 1]);
-                    _movingBall.EdgePath = bfsPath;
-                    _movingBall.Start();
-                    _ = MessageBox.Show($"Duyệt BFS bắt đầu từ đỉnh {selectedVertexValue}: \n" + string.Join(" -> ", result.Select(v => _vertices[v].Value)));
-                    btn_ClearMovingBall.PerformClick();
-                    ShowOrHideMatrixBlock();
-                    UpdateMatrix();
-                }
-                else
-                {
-                    _ = MessageBox.Show("Không tìm thấy đỉnh phù hợp. Vui lòng chọn một đỉnh khác.");
-                }
+                MessageBox.Show("Please select a starting vertex for BFS.");
+                return;
             }
-            else
+
+            var startVertexIndex = _vertices.FindIndex(v => v.Value == cbStartVertex.SelectedItem.ToString());
+            var connectivity = new GraphConnectivity(_vertices, _edges);
+            if (!connectivity.IsConnected())
             {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu duyệt BFS.");
-                _ = cb_First!.Focus();
-                paneldraw.Invalidate();
+                MessageBox.Show("The graph is not connected.");
+                return;
             }
+
+            var bfs = new BFS(_adjacencyMatrix!, _vertices);
+            var (result, _) = bfs.Perform(startVertexIndex);
+            var bfsPath = result.Select(vertexIndex => _vertices[vertexIndex].Location).ToList();
+
+            _movingBall.EdgePath = bfsPath;
+            _movingBall.Start();
+            MessageBox.Show($"BFS traversal starting from {_vertices[startVertexIndex].Value}: \n" + string.Join(" -> ", result.Select(v => _vertices[v].Value)));
+            btnClearMovingBall.PerformClick();
         }
 
-        private void MailMan_Click(object sender, EventArgs e)
+        private void ChinesePostman_Click(object sender, EventArgs e)
         {
-            string? startVertex;
-            Vertex startVertexClass;
-            var oldedge = _edges.ToList();
-            if (cb_First != null && cb_First.SelectedIndex != -1)
+            if (cbStartVertex.SelectedIndex == -1)
             {
-                startVertex = cb_First.SelectedItem as string;
-                startVertexClass = _vertices.FirstOrDefault(v => v.Value == startVertex);
-            }
-            else
-            {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu duyệt MailMan.");
-                _ = cb_First!.Focus();
-                paneldraw.Invalidate();
-                return;
-            }
-            var lienthong = new Lienthong(_vertices, _edges);
-            bool isConnected = lienthong.CheckLienThong();
-            if (!isConnected)
-            {
-                MessageBox.Show("Đồ thị không liên thông");
+                MessageBox.Show("Please select a starting vertex for the Chinese Postman algorithm.");
                 return;
             }
 
-            var mailMan = new Mail(_vertices, _edges);
-            string a, b;
-            (a, b) = mailMan.SolveChinesePostmanProblem(startVertexClass);
-            _additionalEllipseEdges = mailMan.GetAdditionalEdge();
-            paneldraw.Invalidate();
-            MessageBox.Show(a, "Kết quả các cặp tối ưu");
-            var animator = new MailAnimator(mailMan, paneldraw);
-            paneldraw.Paint += animator.OnPaint;
+            var startVertex = _vertices.First(v => v.Value == cbStartVertex.SelectedItem.ToString());
+            var connectivity = new GraphConnectivity(_vertices, _edges);
+            if (!connectivity.IsConnected())
+            {
+                MessageBox.Show("The graph is not connected.");
+                return;
+            }
+
+            var postman = new ChinesePostman(_vertices, new List<Edge>(_edges));
+            var (pairingMessage, cycleMessage) = postman.Solve(startVertex);
+
+            MessageBox.Show(pairingMessage, "Optimal Pairings");
+            var animator = new ChinesePostmanAnimation(postman, panelDraw);
+            panelDraw.Paint += animator.OnPaint;
             animator.StartAnimation();
-            MessageBox.Show(b, "Chu trình Eulerian");
-            _edges = [.. oldedge];
-            paneldraw.Invalidate();
+            MessageBox.Show(cycleMessage, "Eulerian Cycle");
+            panelDraw.Paint -= animator.OnPaint;
+            panelDraw.Invalidate();
         }
+
         private void Kruskal_Click(object sender, EventArgs e)
         {
-            var lienthong = new Lienthong(_vertices, _edges);
-            bool CheckLienThong = lienthong.CheckLienThong();
-            if (!CheckLienThong)
+            var connectivity = new GraphConnectivity(_vertices, _edges);
+            if (!connectivity.IsConnected())
             {
-                _ = MessageBox.Show("Đồ thị không liên thông");
+                MessageBox.Show("The graph is not connected.");
                 return;
             }
-            Kruskal kruskalAlgorithm = new(_vertices, _edges);
-            List<Edge> minimumSpanningTree = kruskalAlgorithm.GetMinimumSpanningTree();
 
-            if (minimumSpanningTree.Count > 0)
+            var kruskal = new Kruskal(_vertices.Count, _edges);
+            var mst = kruskal.GetMinimumSpanningTree();
+
+            if (mst.Count > 0)
             {
-                foreach (Control control in paneldraw.Controls)
-                {
-                    if (control != _matrixBlock)
-                    {
-                        control.Dispose();
-                    }
-                }
-                paneldraw.Controls.Clear();
-
-                KruskalAnimation kruskalAnimation = new(_vertices, _edges, minimumSpanningTree);
-                kruskalAnimation.SetTransform(_zoomLevel, _panOffset);
-                paneldraw.Controls.Add(kruskalAnimation);
+                panelDraw.Controls.Clear();
+                var kruskalAnimation = new KruskalAnimation(_vertices, _edges, mst);
+                panelDraw.Controls.Add(kruskalAnimation);
                 kruskalAnimation.Dock = DockStyle.Fill;
-                paneldraw.Invalidate();
+                panelDraw.Invalidate();
 
-                StringBuilder sb = new();
-                _ = sb.AppendLine("Các cạnh của cây bao phủ nhỏ nhất:");
-                HashSet<int> verticesInMST = [];
-
-                foreach (Edge edge in minimumSpanningTree)
+                var sb = new StringBuilder();
+                sb.AppendLine("Edges of the Minimum Spanning Tree:");
+                foreach (var edge in mst)
                 {
-                    string vertex1Value = _vertices[edge.Vertex1].Value;
-                    string vertex2Value = _vertices[edge.Vertex2].Value;
-                    _ = sb.AppendLine($"{vertex1Value} - {vertex2Value} (Trọng số: {edge.Weight})");
-
-                    _ = verticesInMST.Add(edge.Vertex1);
-                    _ = verticesInMST.Add(edge.Vertex2);
+                    sb.AppendLine($"{_vertices[edge.Vertex1].Value} - {_vertices[edge.Vertex2].Value} (Weight: {edge.Weight})");
                 }
+                sb.AppendLine($"\nTotal weight of the MST: {mst.Sum(e => e.Weight)}");
 
-                int totalWeight = minimumSpanningTree.Sum(e => e.Weight);
-                _ = sb.AppendLine("\nTổng trọng số của cây bao phủ nhỏ nhất: " + totalWeight);
-                Prompt.DisplayKruskalSteps("Cặp đỉnh kruskal", minimumSpanningTree, _vertices);
-                _ = MessageBox.Show(sb.ToString(), "Thông tin cây bao phủ nhỏ nhất");
+                Prompt.ShowKruskalSteps("Kruskal Steps", mst, _vertices);
+                MessageBox.Show(sb.ToString(), "Minimum Spanning Tree Information");
+
                 kruskalAnimation.Dispose();
-                ResizeMatrixBlock();
                 ShowOrHideMatrixBlock();
-                UpdateMatrix();
+                UpdateMatrices();
             }
             else
             {
-                _ = MessageBox.Show("Không tìm thấy cạnh nào trong cây bao phủ nhỏ nhất.", "Thông báo");
+                MessageBox.Show("No edges found in the Minimum Spanning Tree.", "Information");
             }
         }
-
 
         private void Prim_Click(object sender, EventArgs e)
         {
-            if (cb_First != null && cb_First.SelectedIndex != -1)
+            if (cbStartVertex.SelectedIndex == -1)
             {
-                string? startVertex = cb_First.SelectedItem as string;
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == startVertex);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
-                {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
-                    return;
-                }
-                if (startVertexIndex != -1)
-                {
-                    Prim primAlgorithm = new(_vertices, _edges);
-                    List<Edge> minimumSpanningTree = primAlgorithm.GetMinimumSpanningTree(startVertexIndex);
-                    if (minimumSpanningTree.Count > 0)
-                    {
+                MessageBox.Show("Please select a starting vertex for Prim's algorithm.");
+                return;
+            }
 
-                        foreach (Control control in paneldraw.Controls)
-                        {
-                            if (control != _matrixBlock)
-                            {
-                                control.Dispose();
-                            }
-                        }
-                        paneldraw.Controls.Clear();
+            var startVertexIndex = _vertices.FindIndex(v => v.Value == cbStartVertex.SelectedItem.ToString());
+            var connectivity = new GraphConnectivity(_vertices, _edges);
+            if (!connectivity.IsConnected())
+            {
+                MessageBox.Show("The graph is not connected.");
+                return;
+            }
 
-                        PrimAnimationBTTT _primAnimation = new(_vertices, _edges, minimumSpanningTree);
-                        _primAnimation.SetTransform(_zoomLevel, _panOffset);
-                        paneldraw.Controls.Add(_primAnimation);
-                        _primAnimation.Dock = DockStyle.Fill;
-                        paneldraw.Invalidate();
-                        StringBuilder sb = new();
-                        _ = sb.AppendLine("Các cạnh của cây bao phủ nhỏ nhất:");
-                        HashSet<int> verticesInMST = [];
-                        // Lấy cặp cạnh trong cây bao phủ nhỏ nhất và hiển thị
-                        foreach (Edge edge in minimumSpanningTree)
-                        {
-                            string vertex1Value = _vertices[edge.Vertex1].Value;
-                            string vertex2Value = _vertices[edge.Vertex2].Value;
-                            _ = sb.AppendLine($"{vertex1Value} - {vertex2Value} (Trọng số: {edge.Weight})");
+            var prim = new Prim(_vertices.Count, _edges);
+            var mst = prim.GetMinimumSpanningTree(startVertexIndex);
 
-                            _ = verticesInMST.Add(edge.Vertex1);
-                            _ = verticesInMST.Add(edge.Vertex2);
-                        }
-                        int totalWeight = minimumSpanningTree.Sum(e => e.Weight);
-                        _ = sb.AppendLine("\nTổng trọng số của cây bao phủ nhỏ nhất: " + totalWeight);
-                        _ = MessageBox.Show(sb.ToString(), "Thông tin cây bao phủ nhỏ nhất");
-                        _primAnimation.Dispose();
-                        ResizeMatrixBlock();
-                        ShowOrHideMatrixBlock();
-                        UpdateMatrix();
-                    }
-                    else
-                    {
-                        _ = MessageBox.Show("Không tìm thấy cạnh nào trong cây bao phủ nhỏ nhất.", "Thông báo");
-                    }
-                }
-                else
+            if (mst.Count > 0)
+            {
+                panelDraw.Controls.Clear();
+                var primAnimation = new PrimAnimation(_vertices, _edges, mst);
+                panelDraw.Controls.Add(primAnimation);
+                primAnimation.Dock = DockStyle.Fill;
+                panelDraw.Invalidate();
+
+                var sb = new StringBuilder();
+                sb.AppendLine("Edges of the Minimum Spanning Tree:");
+                foreach (var edge in mst)
                 {
-                    _ = MessageBox.Show("Đỉnh bắt đầu không hợp lệ.", "Thông báo");
+                    sb.AppendLine($"{_vertices[edge.Vertex1].Value} - {_vertices[edge.Vertex2].Value} (Weight: {edge.Weight})");
                 }
+                sb.AppendLine($"\nTotal weight of the MST: {mst.Sum(e => e.Weight)}");
+
+                MessageBox.Show(sb.ToString(), "Minimum Spanning Tree Information");
+
+                primAnimation.Dispose();
+                ShowOrHideMatrixBlock();
+                UpdateMatrices();
             }
             else
             {
-                _ = MessageBox.Show("Vui lòng chọn một đỉnh để bắt đầu thuật toán Prim.");
-                _ = cb_First.Focus();
-                paneldraw.Invalidate();
+                MessageBox.Show("No edges found in the Minimum Spanning Tree.", "Information");
             }
         }
 
         private void Dijkstra_Click(object sender, EventArgs e)
         {
-            if (cb_First.SelectedItem != null && cb_Second.SelectedItem != null)
+            if (cbStartVertex.SelectedIndex == -1 || cbEndVertex.SelectedIndex == -1)
             {
-                string startVertexValue = cb_First.SelectedItem.ToString();
-                string endVertexValue = cb_Second.SelectedItem.ToString();
-                int startVertexIndex = _vertices.FindIndex(v => v.Value == startVertexValue);
-                int endVertexIndex = _vertices.FindIndex(v => v.Value == endVertexValue);
-                var lienthong = new Lienthong(_vertices, _edges);
-                bool CheckLienThong = lienthong.CheckLienThong();
-                if (!CheckLienThong)
+                MessageBox.Show("Please select both a start and end vertex.");
+                return;
+            }
+
+            var startVertexIndex = _vertices.FindIndex(v => v.Value == cbStartVertex.SelectedItem.ToString());
+            var endVertexIndex = _vertices.FindIndex(v => v.Value == cbEndVertex.SelectedItem.ToString());
+            var connectivity = new GraphConnectivity(_vertices, _edges);
+            if (!connectivity.IsConnected())
+            {
+                MessageBox.Show("The graph is not connected.");
+                return;
+            }
+
+            var dijkstra = new Dijkstra(_edges, _vertices.Count);
+            var (distances, parents, steps) = dijkstra.FindShortestPath(startVertexIndex);
+
+            if (steps.Count > 0)
+            {
+                Prompt.ShowDijkstraSteps("Dijkstra Steps", distances, parents, steps.ToArray(), _vertices);
+
+                var path = new List<string>();
+                int totalWeight = 0;
+                int current = endVertexIndex;
+                while (current != startVertexIndex && current != -1)
                 {
-                    _ = MessageBox.Show("Đồ thị không liên thông");
-                    return;
+                    int parent = parents[current].FirstOrDefault(-1);
+                    if (parent == -1) break;
+
+                    var edge = _edges.First(e => (e.Vertex1 == current && e.Vertex2 == parent) || (e.Vertex1 == parent && e.Vertex2 == current));
+                    totalWeight += edge.Weight;
+                    path.Insert(0, $"{_vertices[parent].Value} -> {_vertices[current].Value} (Weight: {edge.Weight})");
+                    current = parent;
                 }
-                if (startVertexIndex != -1 && endVertexIndex != -1)
-                {
-                    Dijkstra dijkstraAlgorithm = new(_edges, _vertices.Count);
-                    (int[] distances, List<int>[] parents, List<int[]> steps) = dijkstraAlgorithm.DijkstraShortestPath(startVertexIndex);
 
-                    if (steps.Count > 0)
-                    {
-                        Prompt.DisplayDijkstraSteps("Dijkstra", distances, parents, steps, _vertices);
-                        foreach (Control control in paneldraw.Controls)
-                        {
-                            if (control != _matrixBlock)
-                            {
-                                control.Dispose();
-                            }
-                        }
-                        paneldraw.Controls.Clear();
-                        List<PointF> dijkstraPath = [];
-                        int currentVertexIndex = endVertexIndex;
-                        int totalWeight = 0;
-                        List<string> pathWithWeights = [];
-                        while (currentVertexIndex != startVertexIndex && currentVertexIndex != -1)
-                        {
-                            PointF vertexLocation = _vertices[currentVertexIndex].Location;
-                            dijkstraPath.Add(vertexLocation);
+                var sb = new StringBuilder();
+                sb.AppendLine($"Shortest path from {_vertices[startVertexIndex].Value} to {_vertices[endVertexIndex].Value}:");
+                sb.AppendLine(string.Join("\n", path));
+                sb.AppendLine($"Total weight: {totalWeight}");
 
-                            int previousVertexIndex = parents[currentVertexIndex].FirstOrDefault();
-                            if (previousVertexIndex != -1)
-                            {
-                                Edge? edge = _edges.FirstOrDefault(e => (e.Vertex1 == currentVertexIndex && e.Vertex2 == previousVertexIndex) ||
-                                                                         (e.Vertex1 == previousVertexIndex && e.Vertex2 == currentVertexIndex));
-                                if (edge != null)
-                                {
-                                    totalWeight += edge.Weight;
-                                    pathWithWeights.Insert(0, $"{_vertices[previousVertexIndex].Value} --> {_vertices[currentVertexIndex].Value} (Trọng số: {edge.Weight})");
-                                }
-                            }
-
-                            currentVertexIndex = previousVertexIndex;
-                        }
-
-                        dijkstraPath.Add(_vertices[startVertexIndex].Location);
-                        dijkstraPath.Reverse();
-                        StringBuilder sb = new();
-                        _ = sb.AppendLine($"Đường đi ngắn nhất từ {startVertexValue} đến {endVertexValue}:");
-                        _ = sb.AppendLine();
-                        foreach (string path in pathWithWeights)
-                        {
-                            _ = sb.AppendLine(path);
-                        }
-                        _ = sb.AppendLine($"Tổng trọng số: {totalWeight}");
-                        DijkstraAnimation dijkstraAnimation = new(_vertices, _edges, steps, startVertexIndex, endVertexIndex);
-                        dijkstraAnimation.SetTransform(_zoomLevel, _panOffset);
-                        paneldraw.Controls.Add(dijkstraAnimation);
-                        dijkstraAnimation.Dock = DockStyle.Fill;
-                        _ = MessageBox.Show(sb.ToString(), "Thông tin đường đi ngắn nhất");
-                        paneldraw.Invalidate();
-                        dijkstraAnimation.Dispose();
-                        ResizeMatrixBlock();
-                        ShowOrHideMatrixBlock();
-                        UpdateMatrix();
-                    }
-                    else
-                    {
-                        _ = MessageBox.Show("Không tìm thấy đường đi nào từ đỉnh bắt đầu.", "Thông báo");
-                    }
-                }
-                else
-                {
-                    _ = MessageBox.Show("Không tìm thấy đỉnh phù hợp. Vui lòng chọn một đỉnh khác.", "Thông báo");
-                }
+                var dijkstraAnimation = new DijkstraAnimation(_vertices, _edges, steps, startVertexIndex);
+                panelDraw.Controls.Add(dijkstraAnimation);
+                dijkstraAnimation.Dock = DockStyle.Fill;
+                MessageBox.Show(sb.ToString(), "Shortest Path Information");
+                dijkstraAnimation.Dispose();
+                ShowOrHideMatrixBlock();
+                UpdateMatrices();
             }
             else
             {
-                _ = MessageBox.Show("Vui lòng chọn đỉnh xuất phát và đỉnh đích để tìm đường đi ngắn nhất.", "Thông báo");
+                MessageBox.Show("No path found from the starting vertex.", "Information");
             }
         }
 
         #endregion
-
-        private void btn_totxtmatrix_Click(object sender, EventArgs e)
-        {
-            if (_vertices.Count <= 1)
-            {
-                _ = MessageBox.Show("Đồ thị phải có ít nhất 2 đỉnh.", "Thông báo");
-                return;
-            }
-            bool a;
-            int[,] b;
-            Thisisonlytest thisisonlytest = new(_vertices, _edges);
-            if (radio_AdjMatrix.Checked)
-            {
-                a = true;
-                if (_adjacencyMatrix == null)
-                    return;
-                b = _adjacencyMatrix;
-            }
-            else
-            {
-                a = false;
-                if (_weightMatrix == null)
-                    return;
-                b = _weightMatrix;
-            }
-            thisisonlytest.SaveMatrixToFile(b, a);
-        }
     }
 }

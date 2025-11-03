@@ -1,81 +1,68 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
-namespace Đồ_Thị.Class
+using System.Runtime.Serialization.Formatters.Binary;
+
+namespace DoThi.Class
 {
 #pragma warning disable SYSLIB0011
     [Serializable]
     public class GraphData
     {
-        public required List<Vertex> Vertices { get; set; }
-        public required List<Edge> Edges { get; set; }
-        public required int[,] AdjacencyMatrix { get; set; }
-        public required int[,] WeightMatrix { get; set; }
+        public List<Vertex> Vertices { get; set; }
+        public List<Edge> Edges { get; set; }
+        public int[,] AdjacencyMatrix { get; set; }
+        public int[,] WeightMatrix { get; set; }
 
         #region Save/Load
-        public void SaveGraph()
-        {
-            using SaveFileDialog saveFileDialog = new();
-            saveFileDialog.Filter = "Graph files (*.graph)|*.graph|All files (*.*)|*.*";
-            saveFileDialog.Title = "Save Graph";
-            saveFileDialog.DefaultExt = "graph";
-            saveFileDialog.AddExtension = true;
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        public void Save()
+        {
+            using var saveFileDialog = new SaveFileDialog
             {
-                string fileName = saveFileDialog.FileName;
+                Filter = "Graph files (*.graph)|*.graph|All files (*.*)|*.*",
+                Title = "Save Graph",
+                DefaultExt = "graph",
+                AddExtension = true
+            };
 
-                try
-                {
-                    using Stream stream = File.Open(fileName, FileMode.Create);
-                    BinaryFormatter bformatter = new();
-                    bformatter.Serialize(stream, this);
-                }
-                catch (Exception ex)
-                {
-                    _ = MessageBox.Show("Lỗi khi lưu đồ thị: " + ex.Message);
-                }
-            }
-        }
-
-        public static GraphData LoadGraph(string fileName)
-        {
-            GraphData loadedData;
+            if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
 
             try
             {
-                using Stream stream = File.Open(fileName, FileMode.Open);
-                BinaryFormatter bformatter = new();
-                loadedData = (GraphData)bformatter.Deserialize(stream);
+                using Stream stream = File.Open(saveFileDialog.FileName, FileMode.Create);
+                var binaryFormatter = new BinaryFormatter();
+                binaryFormatter.Serialize(stream, this);
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show("Lỗi khi tải đồ thị: " + ex.Message);
+                MessageBox.Show("Error saving graph: " + ex.Message);
+            }
+        }
+
+        public static GraphData? Load(string fileName)
+        {
+            try
+            {
+                using Stream stream = File.Open(fileName, FileMode.Open);
+                var binaryFormatter = new BinaryFormatter();
+                return (GraphData)binaryFormatter.Deserialize(stream);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading graph: " + ex.Message);
                 return null;
             }
-
-            return loadedData;
         }
-        public static GraphData OpenGraphFile()
+
+        public static GraphData? OpenFile()
         {
-            OpenFileDialog openFileDialog = new()
+            using var openFileDialog = new OpenFileDialog
             {
                 Filter = "Graph files (*.graph)|*.graph|All files (*.*)|*.*",
                 Title = "Open Graph File"
             };
-            try
-            {
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string fileName = openFileDialog.FileName;
-                    return LoadGraph(fileName);
-                }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _ = MessageBox.Show("Error loading graph: " + ex.Message);
-                return null;
-            }
+
+            return openFileDialog.ShowDialog() == DialogResult.OK ? Load(openFileDialog.FileName) : null;
         }
+
+        #endregion
     }
-    #endregion
 }

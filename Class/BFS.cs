@@ -1,17 +1,23 @@
-﻿namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
-    public class BFS(int[,] adjacencyMatrix, List<Vertex> vertices)
+    public class BFS
     {
-        private readonly int[,] _adjacencyMatrix = adjacencyMatrix;
-        private readonly List<Vertex> _vertices = vertices;
+        private readonly int[,] _adjacencyMatrix;
+        private readonly List<Vertex> _vertices;
 
-        public (List<int>, List<string>) PerformBFS(int startVertex)
+        public BFS(int[,] adjacencyMatrix, List<Vertex> vertices)
+        {
+            _adjacencyMatrix = adjacencyMatrix;
+            _vertices = vertices;
+        }
+
+        public (List<int>, List<string>) Perform(int startVertex)
         {
             int size = _adjacencyMatrix.GetLength(0);
-            bool[] visited = new bool[size];
-            List<int> result = [];
-            List<string> adjacencyLog = [];
-            Queue<int> queue = new();
+            var visited = new bool[size];
+            var result = new List<int>();
+            var adjacencyLog = new List<string>();
+            var queue = new Queue<int>();
 
             visited[startVertex] = true;
             queue.Enqueue(startVertex);
@@ -20,13 +26,13 @@
             {
                 int vertex = queue.Dequeue();
                 result.Add(vertex);
-                adjacencyLog.Add($"Đỉnh đang xét: {_vertices[vertex].Value}");
+                adjacencyLog.Add($"Considering vertex: {_vertices[vertex].Value}");
 
                 for (int i = 0; i < size; i++)
                 {
                     if (_adjacencyMatrix[vertex, i] != 0 && !visited[i])
                     {
-                        adjacencyLog.Add($"Đỉnh {_vertices[vertex].Value} kề với đỉnh {_vertices[i].Value}");
+                        adjacencyLog.Add($"Vertex {_vertices[vertex].Value} is adjacent to vertex {_vertices[i].Value}");
                         visited[i] = true;
                         queue.Enqueue(i);
                     }

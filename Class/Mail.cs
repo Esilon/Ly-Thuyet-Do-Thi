@@ -1,118 +1,84 @@
-﻿namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
-    public class Mail(List<Vertex> vertices, List<Edge> edges)
+    /// <summary>
+    /// Implements the Chinese Postman Problem algorithm to find the shortest path that traverses every edge of a graph at least once.
+    /// </summary>
+    public class ChinesePostman
     {
-        public readonly List<Vertex> vertices = vertices;
-        private readonly List<Edge> edges = edges;
-        private readonly List<Edge> additionalEllipseEdges = []; // Biến mới để lưu các cạnh phụ
-        private List<Vertex> eulerianCycle = [];
+        public readonly List<Vertex> Vertices;
+        private readonly List<Edge> _edges;
+        private readonly List<Edge> _additionalEdges = new();
+        private List<Vertex> _eulerianCycle = new();
 
-        public List<Edge> GetAdditionalEdge()
+        public ChinesePostman(List<Vertex> vertices, List<Edge> edges)
         {
-            return [.. additionalEllipseEdges];
+            Vertices = vertices;
+            _edges = edges;
         }
-        public Vertex? GetVertexById(int id)
-        {
-            return vertices.FirstOrDefault(v => vertices.IndexOf(v) == id);
-        }
-        public List<Vertex>? GetEulerianCycle()
-        {
-            // Giả sử phương thức này đã được định nghĩa để trả về danh sách các đỉnh trong chu trình Eulerian
-            if (eulerianCycle != null || eulerianCycle.Count > 0)
-            {
-                return eulerianCycle;
-            }
-            else
-                return null;
 
-        }
+        public List<Edge> GetAdditionalEdges() => new List<Edge>(_additionalEdges);
+
+        public Vertex? GetVertexById(int id) => Vertices.FirstOrDefault(v => Vertices.IndexOf(v) == id);
+
+        public List<Vertex>? GetEulerianCycle() => _eulerianCycle.Count > 0 ? _eulerianCycle : null;
+
         public Edge? GetEdgeBetween(Vertex vertex1, Vertex vertex2)
         {
-            if (edges == null || edges.Count == 0 || vertex1 == null || vertex2 == null)
-            {
-                return null;
-            }
-            else
-            {
-                return edges.FirstOrDefault(edge =>
-                    (edge.Vertex1 == vertices.IndexOf(vertex1) && edge.Vertex2 == vertices.IndexOf(vertex2)) ||
-                    (edge.Vertex1 == vertices.IndexOf(vertex2) && edge.Vertex2 == vertices.IndexOf(vertex1)));
-            }
-
+            if (_edges == null || vertex1 == null || vertex2 == null) return null;
+            return _edges.FirstOrDefault(edge =>
+                (edge.Vertex1 == Vertices.IndexOf(vertex1) && edge.Vertex2 == Vertices.IndexOf(vertex2)) ||
+                (edge.Vertex1 == Vertices.IndexOf(vertex2) && edge.Vertex2 == Vertices.IndexOf(vertex1)));
         }
-        // Phương pháp chính để giải bài toán Người đưa thư Trung Hoa
-        public (string, string) SolveChinesePostmanProblem(Vertex startVertex)
+
+        public (string, string) Solve(Vertex startVertex)
         {
-            // Bước 1: Tìm các đỉnh có bậc lẻ
-            List<Vertex> oddVertices = FindOddDegreeVertices();
+            // Step 1: Find vertices with odd degrees.
+            var oddVertices = FindOddDegreeVertices();
 
-            // Bước 2: Tính khoảng cách ngắn nhất giữa các đỉnh
-            int[,] distances = ComputeShortestPaths();
+            // Step 2: Compute shortest paths between all pairs of odd vertices.
+            var distances = ComputeShortestPaths();
 
-            // Bước 3: Tìm các cặp tối ưu cho các đỉnh bậc lẻ và hiển thị kết quả
+            // Step 3: Find the minimum weight perfect matching for the odd vertices.
             var pairingResults = CalculatePairingDistances(oddVertices, distances);
 
-            // Hiển thị kết quả các phân hoạch và khoảng cách
-            string message = "Các cặp tối ưu và khoảng cách:\n";
+            // Step 4: Construct the message with the optimal pairings and distances.
+            var message = "Optimal pairings and distances:\n";
             foreach (var result in pairingResults)
             {
                 message += $"{result.Pairing} -> d({result.Pairing}) = {result.Distance}\n";
             }
             int minDistance = pairingResults.Min(p => p.Distance);
-            message += $"Tổng khoảng cách nhỏ nhất: {minDistance}";
+            message += $"Minimum total distance: {minDistance}";
 
-            // Bước 5: Thêm các cạnh mới để làm đồ thị thành Eulerian
+            // Step 5: Add new edges to make the graph Eulerian.
             var optimalPair = pairingResults.First(p => p.Distance == minDistance);
-
             foreach (var pair in optimalPair.Pairs)
             {
-                int v1Index = vertices.IndexOf(pair.Item1);
-                int v2Index = vertices.IndexOf(pair.Item2);
-                int distance = distances[v1Index, v2Index];
+                int v1Index = Vertices.IndexOf(pair.Item1);
+                int v2Index = Vertices.IndexOf(pair.Item2);
                 var shortestPath = FindShortestPath(v1Index, v2Index, distances);
-                additionalEllipseEdges.AddRange(shortestPath.Edges);
-                foreach (var edge in shortestPath.Edges)
-                {
-                    edges.Add(edge);
-                }
+                _additionalEdges.AddRange(shortestPath.Edges);
+                _edges.AddRange(shortestPath.Edges);
             }
 
-            // Tìm chu trình Eulerian từ một đỉnh bất kỳ
-            eulerianCycle = FindEulerianCycle(startVertex);
+            // Step 6: Find the Eulerian cycle.
+            _eulerianCycle = FindEulerianCycle(startVertex);
 
-            // Hiển thị chu trình Eulerian
-            string cycleMessage = "Chu trình Eulerian: ";
-            foreach (var vertex in eulerianCycle)
-            {
-                cycleMessage += vertex.Value + " -> ";
-            }
-            cycleMessage = cycleMessage.TrimEnd(' ', '-', '>');
+            // Step 7: Construct the Eulerian cycle message.
+            var cycleMessage = "Eulerian Cycle: " + string.Join(" -> ", _eulerianCycle.Select(v => v.Value));
 
             return (message, cycleMessage);
         }
 
-        // Phương pháp tìm các đỉnh có bậc lẻ trong đồ thị
         private List<Vertex> FindOddDegreeVertices()
         {
-            List<Vertex> oddVertices = [];
-            foreach (var vertex in vertices)
-            {
-                int degree = edges.Count(e => e.Vertex1 == vertices.IndexOf(vertex) || e.Vertex2 == vertices.IndexOf(vertex));
-                if (degree % 2 != 0)
-                {
-                    oddVertices.Add(vertex);
-                }
-            }
-            return oddVertices;
+            return Vertices.Where(v => _edges.Count(e => e.Vertex1 == Vertices.IndexOf(v) || e.Vertex2 == Vertices.IndexOf(v)) % 2 != 0).ToList();
         }
 
-        // Phương pháp tính khoảng cách ngắn nhất giữa các đỉnh
         private int[,] ComputeShortestPaths()
         {
-            int n = vertices.Count;
-            int[,] distances = new int[n, n];
-
-            bool isWeighted = edges.Any(e => e.Weight != 0);
+            int n = Vertices.Count;
+            var distances = new int[n, n];
 
             for (int i = 0; i < n; i++)
             {
@@ -122,107 +88,31 @@
                 }
             }
 
-            if (isWeighted) // Dùng thuật toán Dijkstra
+            foreach (var edge in _edges)
             {
-                for (int i = 0; i < n; i++)
+                distances[edge.Vertex1, edge.Vertex2] = edge.Weight;
+                if (!edge.IsDirected)
                 {
-                    Dijkstra(i, distances);
-                }
-            }
-            else // Dùng thuật toán BFS
-            {
-                for (int i = 0; i < n; i++)
-                {
-                    BFS(i, distances);
+                    distances[edge.Vertex2, edge.Vertex1] = edge.Weight;
                 }
             }
 
+            for (int k = 0; k < n; k++)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        if (distances[i, k] != int.MaxValue && distances[k, j] != int.MaxValue && distances[i, k] + distances[k, j] < distances[i, j])
+                        {
+                            distances[i, j] = distances[i, k] + distances[k, j];
+                        }
+                    }
+                }
+            }
             return distances;
         }
 
-        private void Dijkstra(int startIndex, int[,] distances)
-        {
-            int n = vertices.Count;
-            bool[] visited = new bool[n];
-            int[] minDistances = new int[n];
-
-            for (int i = 0; i < n; i++)
-            {
-                minDistances[i] = int.MaxValue;
-            }
-            minDistances[startIndex] = 0;
-
-            var priorityQueue = new SortedSet<(int Distance, int Vertex)>
-            {
-                (0, startIndex)
-            };
-
-            while (priorityQueue.Count > 0)
-            {
-                var (currentDistance, currentIndex) = priorityQueue.First();
-                priorityQueue.Remove(priorityQueue.First());
-
-                if (visited[currentIndex])
-                {
-                    continue;
-                }
-                visited[currentIndex] = true;
-
-                foreach (var edge in edges.Where(e => e.Vertex1 == currentIndex || e.Vertex2 == currentIndex))
-                {
-                    int neighborIndex = edge.Vertex1 == currentIndex ? edge.Vertex2 : edge.Vertex1;
-
-                    if (visited[neighborIndex])
-                    {
-                        continue;
-                    }
-
-                    int newDistance = currentDistance + edge.Weight;
-                    if (newDistance < minDistances[neighborIndex])
-                    {
-                        priorityQueue.Remove((minDistances[neighborIndex], neighborIndex));
-                        minDistances[neighborIndex] = newDistance;
-                        priorityQueue.Add((newDistance, neighborIndex));
-                    }
-                }
-            }
-
-            for (int i = 0; i < n; i++)
-            {
-                distances[startIndex, i] = minDistances[i];
-            }
-        }
-
-        private void BFS(int startIndex, int[,] distances)
-        {
-            int n = vertices.Count;
-            bool[] visited = new bool[n];
-            Queue<(int Vertex, int Distance)> queue = new();
-
-            queue.Enqueue((startIndex, 0));
-            visited[startIndex] = true;
-
-            while (queue.Count > 0)
-            {
-                var (currentIndex, currentDistance) = queue.Dequeue();
-
-                foreach (var edge in edges.Where(e => e.Vertex1 == currentIndex || e.Vertex2 == currentIndex))
-                {
-                    int neighborIndex = edge.Vertex1 == currentIndex ? edge.Vertex2 : edge.Vertex1;
-
-                    if (visited[neighborIndex])
-                    {
-                        continue;
-                    }
-
-                    visited[neighborIndex] = true;
-                    distances[startIndex, neighborIndex] = currentDistance + 1;
-                    queue.Enqueue((neighborIndex, currentDistance + 1));
-                }
-            }
-        }
-
-        // Phương pháp sinh các cặp đỉnh lẻ và tính phân hoạch khoảng cách giữa các cặp đỉnh lẻ
         private List<PairingResult> CalculatePairingDistances(List<Vertex> oddVertices, int[,] distances)
         {
             var results = new List<PairingResult>();
@@ -231,91 +121,54 @@
             foreach (var pair in pairs)
             {
                 int totalDistance = 0;
-                string pairing = "{";
-                List<Edge> newEdges = [];
+                var pairing = "{" + string.Join(", ", pair.Select(p => $"({p.Item1.Value}, {p.Item2.Value})")) + "}";
+                var newEdges = new List<Edge>();
 
                 foreach (var p in pair)
                 {
-                    int v1Index = vertices.IndexOf(p.Item1);
-                    int v2Index = vertices.IndexOf(p.Item2);
-
-                    var (TotalDistance, Edges) = FindShortestPath(v1Index, v2Index, distances);
-                    totalDistance += TotalDistance;
-                    newEdges.AddRange(Edges);
-
-                    pairing += $"({p.Item1.Value}, {p.Item2.Value}), ";
+                    int v1Index = Vertices.IndexOf(p.Item1);
+                    int v2Index = Vertices.IndexOf(p.Item2);
+                    var (pathDistance, pathEdges) = FindShortestPath(v1Index, v2Index, distances);
+                    totalDistance += pathDistance;
+                    newEdges.AddRange(pathEdges);
                 }
-                pairing = pairing.TrimEnd(',', ' ') + "}";
-
                 results.Add(new PairingResult(pairing, totalDistance, pair, newEdges));
             }
 
             return results;
         }
-        // Tìm đỉnh tới đỉnh đích thông qua từng đỉnh trung gian với khoảng cách nhỏ nhất
+
         private (int TotalDistance, List<Edge> Edges) FindShortestPath(int startIndex, int endIndex, int[,] distances)
         {
-            List<Edge> pathEdges = [];
+            var pathEdges = new List<Edge>();
             int totalDistance = distances[startIndex, endIndex];
+            if (totalDistance == int.MaxValue) return (totalDistance, pathEdges);
 
-            if (totalDistance == int.MaxValue)
-            {
-                // Không có đường đi giữa các đỉnh
-                return (totalDistance, pathEdges);
-            }
+            var previous = new int[Vertices.Count];
+            for (int i = 0; i < Vertices.Count; i++) previous[i] = -1;
 
-            // Khởi tạo đồ thị phụ để theo dõi các cạnh trong đường đi ngắn nhất
-            Dictionary<int, List<Edge>> adjList = [];
-            foreach (var edge in edges)
-            {
-                if (!adjList.ContainsKey(edge.Vertex1))
-                    adjList[edge.Vertex1] = [];
-                if (!adjList.ContainsKey(edge.Vertex2))
-                    adjList[edge.Vertex2] = [];
-
-                adjList[edge.Vertex1].Add(edge);
-                adjList[edge.Vertex2].Add(edge);
-            }
-
-            // Khởi tạo mảng để theo dõi đường đi từ đỉnh bắt đầu
-            int[] previous = new int[vertices.Count];
-            for (int i = 0; i < vertices.Count; i++)
-                previous[i] = -1;
-
-            // Khởi tạo hàng đợi và mảng khoảng cách
             var queue = new Queue<int>();
             queue.Enqueue(startIndex);
-            bool[] visited = new bool[vertices.Count];
+            var visited = new bool[Vertices.Count];
             visited[startIndex] = true;
-
-            // Khởi tạo mảng khoảng cách
-            int[] minDistances = new int[vertices.Count];
-            Array.Fill(minDistances, int.MaxValue);
-            minDistances[startIndex] = 0;
 
             while (queue.Count > 0)
             {
                 int currentIndex = queue.Dequeue();
+                if (currentIndex == endIndex) break;
 
-                if (currentIndex == endIndex)
-                    break;
-
-                foreach (var edge in adjList[currentIndex])
+                for (int neighborIndex = 0; neighborIndex < Vertices.Count; neighborIndex++)
                 {
-                    int neighborIndex = edge.Vertex1 == currentIndex ? edge.Vertex2 : edge.Vertex1;
-
-                    if (!visited[neighborIndex])
+                    if (distances[currentIndex, neighborIndex] != int.MaxValue && !visited[neighborIndex])
                     {
                         visited[neighborIndex] = true;
                         queue.Enqueue(neighborIndex);
-                        minDistances[neighborIndex] = minDistances[currentIndex] + edge.Weight;
                         previous[neighborIndex] = currentIndex;
                     }
                 }
             }
 
-            // Xây dựng danh sách các cạnh của đường đi ngắn nhất
-            Stack<int> path = new();
+            var path = new Stack<int>();
             int current = endIndex;
             while (current != -1)
             {
@@ -328,14 +181,10 @@
             {
                 if (previousVertex != -1)
                 {
-                    var edge = edges.FirstOrDefault(e =>
+                    var edge = _edges.FirstOrDefault(e =>
                         (e.Vertex1 == previousVertex && e.Vertex2 == vertex) ||
                         (e.Vertex2 == previousVertex && e.Vertex1 == vertex));
-
-                    if (edge != null)
-                    {
-                        pathEdges.Add(edge);
-                    }
+                    if (edge != null) pathEdges.Add(edge);
                 }
                 previousVertex = vertex;
             }
@@ -343,20 +192,12 @@
             return (totalDistance, pathEdges);
         }
 
-
-
-        // Phương pháp sinh các cặp đỉnh lẻ
         private List<List<Tuple<Vertex, Vertex>>> GeneratePairs(List<Vertex> vertices)
         {
             var results = new List<List<Tuple<Vertex, Vertex>>>();
+            if (vertices.Count % 2 != 0) throw new InvalidOperationException("The number of odd degree vertices must be even.");
 
-            if (vertices.Count % 2 != 0)
-            {
-                throw new InvalidOperationException("Số lượng đỉnh bậc lẻ phải là số chẵn.");
-            }
-
-            GeneratePairsRecursive(vertices, [], results);
-
+            GeneratePairsRecursive(vertices, new List<Tuple<Vertex, Vertex>>(), results);
             return results;
         }
 
@@ -375,31 +216,27 @@
             {
                 var pair = new Tuple<Vertex, Vertex>(first, remaining[i]);
                 currentPairs.Add(pair);
-
                 var newRemaining = remaining.Where((_, index) => index != i).ToList();
                 GeneratePairsRecursive(newRemaining, currentPairs, results);
-
                 currentPairs.Remove(pair);
             }
         }
 
-        // Phương pháp tìm chu trình Eulerian
         private List<Vertex> FindEulerianCycle(Vertex startVertex)
         {
             var stack = new Stack<Vertex>();
             var cycle = new List<Vertex>();
             var current = startVertex;
-            var newEdges = new List<Edge>(edges);
+            var tempEdges = new List<Edge>(_edges);
 
-            while (stack.Count > 0 || newEdges.Count > 0)
+            while (stack.Count > 0 || tempEdges.Any(e => e.Vertex1 == Vertices.IndexOf(current) || e.Vertex2 == Vertices.IndexOf(current)))
             {
-                var edge = newEdges.FirstOrDefault(e => e.Vertex1 == vertices.IndexOf(current) || e.Vertex2 == vertices.IndexOf(current));
+                var edge = tempEdges.FirstOrDefault(e => e.Vertex1 == Vertices.IndexOf(current) || e.Vertex2 == Vertices.IndexOf(current));
                 if (edge != null)
                 {
                     stack.Push(current);
-                    newEdges.Remove(edge);
-
-                    current = edge.Vertex1 == vertices.IndexOf(current) ? vertices.Find(v => vertices.IndexOf(v) == edge.Vertex2) : vertices.Find(v => vertices.IndexOf(v) == edge.Vertex1);
+                    tempEdges.Remove(edge);
+                    current = edge.Vertex1 == Vertices.IndexOf(current) ? Vertices[edge.Vertex2] : Vertices[edge.Vertex1];
                 }
                 else
                 {
@@ -407,18 +244,25 @@
                     current = stack.Count > 0 ? stack.Pop() : startVertex;
                 }
             }
-
             cycle.Add(current);
+            cycle.Reverse();
             return cycle;
         }
-        
-
     }
-    public class PairingResult(string pairing, int distance, List<Tuple<Vertex, Vertex>> pairs, List<Edge> newEdges)
+
+    public class PairingResult
     {
-        public string Pairing { get; } = pairing;
-        public int Distance { get; } = distance;
-        public List<Tuple<Vertex, Vertex>> Pairs { get; } = pairs;
-        public List<Edge> NewEdges { get; } = newEdges;
+        public string Pairing { get; }
+        public int Distance { get; }
+        public List<Tuple<Vertex, Vertex>> Pairs { get; }
+        public List<Edge> NewEdges { get; }
+
+        public PairingResult(string pairing, int distance, List<Tuple<Vertex, Vertex>> pairs, List<Edge> newEdges)
+        {
+            Pairing = pairing;
+            Distance = distance;
+            Pairs = pairs;
+            NewEdges = newEdges;
+        }
     }
 }

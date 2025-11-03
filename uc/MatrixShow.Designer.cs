@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.uc
+namespace DoThi.uc
 {
     partial class MatrixShow
     {
@@ -28,570 +28,581 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MatrixShow));
-            panelMain = new Panel();
-            panelDis = new Panel();
-            panelE = new Panel();
-            btn_totxtmatrix = new Button();
-            label4 = new Label();
-            txtZoom = new TextBox();
-            btn_ClearMovingBall = new Button();
-            MatranGroup = new GroupBox();
-            radio_WeightMatrix = new RadioButton();
-            radio_AdjMatrix = new RadioButton();
-            label3 = new Label();
-            label2 = new Label();
-            cb_Second = new ComboBox();
-            cb_First = new ComboBox();
-            label1 = new Label();
-            txtNodeCount = new TextBox();
-            paneldraw = new Panel();
-            btn_Graph = new Compoments.Round_Button();
-            btnClear = new Compoments.Round_Button();
-            btn_select = new Compoments.Round_Button();
-            btn_SearchMenu = new Compoments.Round_Button();
-            btn_Xoa = new Compoments.Round_Button();
-            btn_ThemCanh = new Compoments.Round_Button();
-            btn_ThemDinh = new Compoments.Round_Button();
-            drMenuGraph = new Compoments.RJDropdownMenu(components);
-            SaveGraph = new ToolStripMenuItem();
-            LoadGraph = new ToolStripMenuItem();
-            drTim = new Compoments.RJDropdownMenu(components);
-            DFS = new ToolStripMenuItem();
-            BFS = new ToolStripMenuItem();
-            MailMan = new ToolStripMenuItem();
-            MSTree = new ToolStripMenuItem();
-            Kruskal = new ToolStripMenuItem();
-            Prim = new ToolStripMenuItem();
-            SPaths = new ToolStripMenuItem();
-            Dijkstra = new ToolStripMenuItem();
-            flowLayoutPanel1 = new FlowLayoutPanel();
-            panelMain.SuspendLayout();
-            panelDis.SuspendLayout();
-            panelE.SuspendLayout();
-            MatranGroup.SuspendLayout();
-            drMenuGraph.SuspendLayout();
-            drTim.SuspendLayout();
-            flowLayoutPanel1.SuspendLayout();
-            SuspendLayout();
+            this.panelMain = new System.Windows.Forms.Panel();
+            this.panelDisplay = new System.Windows.Forms.Panel();
+            this.panelControls = new System.Windows.Forms.Panel();
+            this.btnExportMatrix = new System.Windows.Forms.Button();
+            this.labelZoom = new System.Windows.Forms.Label();
+            this.txtZoom = new System.Windows.Forms.TextBox();
+            this.btnClearMovingBall = new System.Windows.Forms.Button();
+            this.groupMatrixType = new System.Windows.Forms.GroupBox();
+            this.radioWeightMatrix = new System.Windows.Forms.RadioButton();
+            this.radioAdjMatrix = new System.Windows.Forms.RadioButton();
+            this.labelTo = new System.Windows.Forms.Label();
+            this.labelFrom = new System.Windows.Forms.Label();
+            this.cbEndVertex = new System.Windows.Forms.ComboBox();
+            this.cbStartVertex = new System.Windows.Forms.ComboBox();
+            this.labelNodeCount = new System.Windows.Forms.Label();
+            this.txtNodeCount = new System.Windows.Forms.TextBox();
+            this.panelDraw = new System.Windows.Forms.Panel();
+            this.btnGraph = new DoThi.Components.RoundButton();
+            this.btnClear = new DoThi.Components.RoundButton();
+            this.btnSelect = new DoThi.Components.RoundButton();
+            this.btnSearchMenu = new DoThi.Components.RoundButton();
+            this.btnDelete = new DoThi.Components.RoundButton();
+            this.btnAddEdge = new DoThi.Components.RoundButton();
+            this.btnAddVertex = new DoThi.Components.RoundButton();
+            this.drpGraph = new DoThi.Components.RJDropdownMenu(this.components);
+            this.saveGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.drpSearch = new DoThi.Components.RJDropdownMenu(this.components);
+            this.dfsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bfsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chinesePostmanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mstToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.kruskalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.primToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.shortestPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dijkstraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.panelMain.SuspendLayout();
+            this.panelDisplay.SuspendLayout();
+            this.panelControls.SuspendLayout();
+            this.groupMatrixType.SuspendLayout();
+            this.drpGraph.SuspendLayout();
+            this.drpSearch.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
+            this.SuspendLayout();
             // 
             // panelMain
             // 
-            panelMain.AutoSize = true;
-            panelMain.BackColor = SystemColors.ControlLightLight;
-            panelMain.Controls.Add(panelDis);
-            panelMain.Dock = DockStyle.Fill;
-            panelMain.Location = new Point(0, 0);
-            panelMain.Name = "panelMain";
-            panelMain.Size = new Size(938, 521);
-            panelMain.TabIndex = 2;
-            // 
-            // panelDis
-            // 
-            panelDis.Controls.Add(panelE);
-            panelDis.Controls.Add(paneldraw);
-            panelDis.Dock = DockStyle.Fill;
-            panelDis.Location = new Point(0, 0);
-            panelDis.Name = "panelDis";
-            panelDis.Size = new Size(938, 521);
-            panelDis.TabIndex = 4;
-            // 
-            // panelE
-            // 
-            panelE.Controls.Add(btn_totxtmatrix);
-            panelE.Controls.Add(label4);
-            panelE.Controls.Add(txtZoom);
-            panelE.Controls.Add(btn_ClearMovingBall);
-            panelE.Controls.Add(MatranGroup);
-            panelE.Controls.Add(label3);
-            panelE.Controls.Add(label2);
-            panelE.Controls.Add(cb_Second);
-            panelE.Controls.Add(cb_First);
-            panelE.Controls.Add(label1);
-            panelE.Controls.Add(txtNodeCount);
-            panelE.Dock = DockStyle.Right;
-            panelE.Location = new Point(801, 0);
-            panelE.Name = "panelE";
-            panelE.Size = new Size(137, 521);
-            panelE.TabIndex = 2;
-            // 
-            // btn_totxtmatrix
-            // 
-            btn_totxtmatrix.Location = new Point(56, 131);
-            btn_totxtmatrix.Name = "btn_totxtmatrix";
-            btn_totxtmatrix.Size = new Size(75, 23);
-            btn_totxtmatrix.TabIndex = 12;
-            btn_totxtmatrix.Text = "totxtMatrix";
-            btn_totxtmatrix.UseVisualStyleBackColor = true;
-            btn_totxtmatrix.Click += btn_totxtmatrix_Click;
-            // 
-            // label4
-            // 
-            label4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            label4.AutoSize = true;
-            label4.Location = new Point(84, 395);
-            label4.Name = "label4";
-            label4.Size = new Size(59, 15);
-            label4.TabIndex = 11;
-            label4.Text = "Zome LVL";
+            this.panelMain.AutoSize = true;
+            this.panelMain.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.panelMain.Controls.Add(this.panelDisplay);
+            this.panelMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelMain.Location = new System.Drawing.Point(0, 0);
+            this.panelMain.Name = "panelMain";
+            this.panelMain.Size = new System.Drawing.Size(938, 421);
+            this.panelMain.TabIndex = 2;
+            //
+            // panelDisplay
+            //
+            this.panelDisplay.Controls.Add(this.panelControls);
+            this.panelDisplay.Controls.Add(this.panelDraw);
+            this.panelDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelDisplay.Location = new System.Drawing.Point(0, 0);
+            this.panelDisplay.Name = "panelDisplay";
+            this.panelDisplay.Size = new System.Drawing.Size(938, 421);
+            this.panelDisplay.TabIndex = 4;
+            //
+            // panelControls
+            //
+            this.panelControls.Controls.Add(this.btnExportMatrix);
+            this.panelControls.Controls.Add(this.labelZoom);
+            this.panelControls.Controls.Add(this.txtZoom);
+            this.panelControls.Controls.Add(this.btnClearMovingBall);
+            this.panelControls.Controls.Add(this.groupMatrixType);
+            this.panelControls.Controls.Add(this.labelTo);
+            this.panelControls.Controls.Add(this.labelFrom);
+            this.panelControls.Controls.Add(this.cbEndVertex);
+            this.panelControls.Controls.Add(this.cbStartVertex);
+            this.panelControls.Controls.Add(this.labelNodeCount);
+            this.panelControls.Controls.Add(this.txtNodeCount);
+            this.panelControls.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelControls.Location = new System.Drawing.Point(801, 0);
+            this.panelControls.Name = "panelControls";
+            this.panelControls.Size = new System.Drawing.Size(137, 421);
+            this.panelControls.TabIndex = 2;
+            //
+            // btnExportMatrix
+            //
+            this.btnExportMatrix.Location = new System.Drawing.Point(56, 131);
+            this.btnExportMatrix.Name = "btnExportMatrix";
+            this.btnExportMatrix.Size = new System.Drawing.Size(75, 23);
+            this.btnExportMatrix.TabIndex = 12;
+            this.btnExportMatrix.Text = "Export Matrix";
+            this.btnExportMatrix.UseVisualStyleBackColor = true;
+            this.btnExportMatrix.Click += new System.EventHandler(this.btnExportMatrix_Click);
+            //
+            // labelZoom
+            //
+            this.labelZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelZoom.AutoSize = true;
+            this.labelZoom.Location = new System.Drawing.Point(84, 295);
+            this.labelZoom.Name = "labelZoom";
+            this.labelZoom.Size = new System.Drawing.Size(59, 15);
+            this.labelZoom.TabIndex = 11;
+            this.labelZoom.Text = "Zoom Level";
             // 
             // txtZoom
             // 
-            txtZoom.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            txtZoom.Location = new Point(3, 395);
-            txtZoom.Name = "txtZoom";
-            txtZoom.ReadOnly = true;
-            txtZoom.Size = new Size(131, 23);
-            txtZoom.TabIndex = 10;
-            // 
-            // btn_ClearMovingBall
-            // 
-            btn_ClearMovingBall.Location = new Point(56, 102);
-            btn_ClearMovingBall.Name = "btn_ClearMovingBall";
-            btn_ClearMovingBall.Size = new Size(75, 23);
-            btn_ClearMovingBall.TabIndex = 9;
-            btn_ClearMovingBall.Text = "Clear Draw";
-            btn_ClearMovingBall.UseVisualStyleBackColor = true;
-            btn_ClearMovingBall.Click += btn_ClearMovingBall_Click;
-            // 
-            // MatranGroup
-            // 
-            MatranGroup.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            MatranGroup.Controls.Add(radio_WeightMatrix);
-            MatranGroup.Controls.Add(radio_AdjMatrix);
-            MatranGroup.Location = new Point(0, 323);
-            MatranGroup.Name = "MatranGroup";
-            MatranGroup.Size = new Size(137, 66);
-            MatranGroup.TabIndex = 8;
-            MatranGroup.TabStop = false;
-            MatranGroup.Text = "Ma trận";
-            // 
-            // radio_WeightMatrix
-            // 
-            radio_WeightMatrix.AutoSize = true;
-            radio_WeightMatrix.Location = new Point(6, 43);
-            radio_WeightMatrix.Name = "radio_WeightMatrix";
-            radio_WeightMatrix.Size = new Size(113, 19);
-            radio_WeightMatrix.TabIndex = 7;
-            radio_WeightMatrix.Text = "Ma trận trọng số";
-            radio_WeightMatrix.UseVisualStyleBackColor = true;
-            radio_WeightMatrix.CheckedChanged += rbMatrixType_CheckedChanged;
-            // 
-            // radio_AdjMatrix
-            // 
-            radio_AdjMatrix.AutoSize = true;
-            radio_AdjMatrix.Checked = true;
-            radio_AdjMatrix.Location = new Point(6, 18);
-            radio_AdjMatrix.Name = "radio_AdjMatrix";
-            radio_AdjMatrix.Size = new Size(81, 19);
-            radio_AdjMatrix.TabIndex = 6;
-            radio_AdjMatrix.TabStop = true;
-            radio_AdjMatrix.Text = "Ma trận kề";
-            radio_AdjMatrix.UseVisualStyleBackColor = true;
-            radio_AdjMatrix.CheckedChanged += rbMatrixType_CheckedChanged;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(22, 61);
-            label3.Name = "label3";
-            label3.Size = new Size(22, 15);
-            label3.TabIndex = 5;
-            label3.Text = "To:";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(6, 32);
-            label2.Name = "label2";
-            label2.Size = new Size(38, 15);
-            label2.TabIndex = 4;
-            label2.Text = "From:";
-            // 
-            // cb_Second
-            // 
-            cb_Second.FormattingEnabled = true;
-            cb_Second.Location = new Point(56, 58);
-            cb_Second.Name = "cb_Second";
-            cb_Second.Size = new Size(76, 23);
-            cb_Second.TabIndex = 3;
-            // 
-            // cb_First
-            // 
-            cb_First.FormattingEnabled = true;
-            cb_First.Location = new Point(56, 29);
-            cb_First.Name = "cb_First";
-            cb_First.Size = new Size(76, 23);
-            cb_First.TabIndex = 2;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(87, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(50, 15);
-            label1.TabIndex = 1;
-            label1.Text = "Số node";
+            this.txtZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtZoom.Location = new System.Drawing.Point(3, 295);
+            this.txtZoom.Name = "txtZoom";
+            this.txtZoom.ReadOnly = true;
+            this.txtZoom.Size = new System.Drawing.Size(131, 23);
+            this.txtZoom.TabIndex = 10;
+            //
+            // btnClearMovingBall
+            //
+            this.btnClearMovingBall.Location = new System.Drawing.Point(56, 102);
+            this.btnClearMovingBall.Name = "btnClearMovingBall";
+            this.btnClearMovingBall.Size = new System.Drawing.Size(75, 23);
+            this.btnClearMovingBall.TabIndex = 9;
+            this.btnClearMovingBall.Text = "Clear Draw";
+            this.btnClearMovingBall.UseVisualStyleBackColor = true;
+            this.btnClearMovingBall.Click += new System.EventHandler(this.btnClearMovingBall_Click);
+            //
+            // groupMatrixType
+            //
+            this.groupMatrixType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupMatrixType.Controls.Add(this.radioWeightMatrix);
+            this.groupMatrixType.Controls.Add(this.radioAdjMatrix);
+            this.groupMatrixType.Location = new System.Drawing.Point(0, 223);
+            this.groupMatrixType.Name = "groupMatrixType";
+            this.groupMatrixType.Size = new System.Drawing.Size(137, 66);
+            this.groupMatrixType.TabIndex = 8;
+            this.groupMatrixType.TabStop = false;
+            this.groupMatrixType.Text = "Matrix Type";
+            //
+            // radioWeightMatrix
+            //
+            this.radioWeightMatrix.AutoSize = true;
+            this.radioWeightMatrix.Location = new System.Drawing.Point(6, 43);
+            this.radioWeightMatrix.Name = "radioWeightMatrix";
+            this.radioWeightMatrix.Size = new System.Drawing.Size(98, 19);
+            this.radioWeightMatrix.TabIndex = 7;
+            this.radioWeightMatrix.Text = "Weight Matrix";
+            this.radioWeightMatrix.UseVisualStyleBackColor = true;
+            this.radioWeightMatrix.CheckedChanged += new System.EventHandler(this.rbMatrixType_CheckedChanged);
+            //
+            // radioAdjMatrix
+            //
+            this.radioAdjMatrix.AutoSize = true;
+            this.radioAdjMatrix.Checked = true;
+            this.radioAdjMatrix.Location = new System.Drawing.Point(6, 18);
+            this.radioAdjMatrix.Name = "radioAdjMatrix";
+            this.radioAdjMatrix.Size = new System.Drawing.Size(116, 19);
+            this.radioAdjMatrix.TabIndex = 6;
+            this.radioAdjMatrix.TabStop = true;
+            this.radioAdjMatrix.Text = "Adjacency Matrix";
+            this.radioAdjMatrix.UseVisualStyleBackColor = true;
+            this.radioAdjMatrix.CheckedChanged += new System.EventHandler(this.rbMatrixType_CheckedChanged);
+            //
+            // labelTo
+            //
+            this.labelTo.AutoSize = true;
+            this.labelTo.Location = new System.Drawing.Point(22, 61);
+            this.labelTo.Name = "labelTo";
+            this.labelTo.Size = new System.Drawing.Size(22, 15);
+            this.labelTo.TabIndex = 5;
+            this.labelTo.Text = "To:";
+            //
+            // labelFrom
+            //
+            this.labelFrom.AutoSize = true;
+            this.labelFrom.Location = new System.Drawing.Point(6, 32);
+            this.labelFrom.Name = "labelFrom";
+            this.labelFrom.Size = new System.Drawing.Size(38, 15);
+            this.labelFrom.TabIndex = 4;
+            this.labelFrom.Text = "From:";
+            //
+            // cbEndVertex
+            //
+            this.cbEndVertex.FormattingEnabled = true;
+            this.cbEndVertex.Location = new System.Drawing.Point(56, 58);
+            this.cbEndVertex.Name = "cbEndVertex";
+            this.cbEndVertex.Size = new System.Drawing.Size(76, 23);
+            this.cbEndVertex.TabIndex = 3;
+            //
+            // cbStartVertex
+            //
+            this.cbStartVertex.FormattingEnabled = true;
+            this.cbStartVertex.Location = new System.Drawing.Point(56, 29);
+            this.cbStartVertex.Name = "cbStartVertex";
+            this.cbStartVertex.Size = new System.Drawing.Size(76, 23);
+            this.cbStartVertex.TabIndex = 2;
+            //
+            // labelNodeCount
+            //
+            this.labelNodeCount.AutoSize = true;
+            this.labelNodeCount.Location = new System.Drawing.Point(87, 0);
+            this.labelNodeCount.Name = "labelNodeCount";
+            this.labelNodeCount.Size = new System.Drawing.Size(71, 15);
+            this.labelNodeCount.TabIndex = 1;
+            this.labelNodeCount.Text = "Node Count";
             // 
             // txtNodeCount
             // 
-            txtNodeCount.Location = new Point(0, 0);
-            txtNodeCount.Name = "txtNodeCount";
-            txtNodeCount.ReadOnly = true;
-            txtNodeCount.Size = new Size(136, 23);
-            txtNodeCount.TabIndex = 0;
-            // 
-            // paneldraw
-            // 
-            paneldraw.Dock = DockStyle.Fill;
-            paneldraw.Location = new Point(0, 0);
-            paneldraw.Name = "paneldraw";
-            paneldraw.Size = new Size(938, 521);
-            paneldraw.TabIndex = 3;
-            paneldraw.Paint += paneldraw_Paint;
-            paneldraw.MouseDoubleClick += paneldraw_MouseDoubleClick;
-            paneldraw.MouseDown += paneldraw_MouseDown;
-            paneldraw.MouseMove += paneldraw_MouseMove;
-            paneldraw.MouseUp += paneldraw_MouseUp;
-            // 
-            // btn_Graph
-            // 
-            btn_Graph.BackColor = Color.SaddleBrown;
-            btn_Graph.BackgroundColor = Color.SaddleBrown;
-            btn_Graph.BorderColor = Color.PaleVioletRed;
-            btn_Graph.BorderRadius = 20;
-            btn_Graph.BorderSize = 0;
-            btn_Graph.Cursor = Cursors.Hand;
-            btn_Graph.FlatAppearance.BorderSize = 0;
-            btn_Graph.FlatStyle = FlatStyle.Flat;
-            btn_Graph.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_Graph.ForeColor = Color.Transparent;
-            btn_Graph.Image = Đồ_thị.Properties.Resources.Save_1;
-            btn_Graph.Location = new Point(3, 49);
-            btn_Graph.Name = "btn_Graph";
-            btn_Graph.Size = new Size(150, 40);
-            btn_Graph.TabIndex = 6;
-            btn_Graph.Text = "Graph";
-            btn_Graph.TextColor = Color.Transparent;
-            btn_Graph.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btn_Graph.UseVisualStyleBackColor = false;
-            btn_Graph.Click += btn_SaveGraph_Click;
+            this.txtNodeCount.Location = new System.Drawing.Point(0, 0);
+            this.txtNodeCount.Name = "txtNodeCount";
+            this.txtNodeCount.ReadOnly = true;
+            this.txtNodeCount.Size = new System.Drawing.Size(136, 23);
+            this.txtNodeCount.TabIndex = 0;
+            //
+            // panelDraw
+            //
+            this.panelDraw.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelDraw.Location = new System.Drawing.Point(0, 0);
+            this.panelDraw.Name = "panelDraw";
+            this.panelDraw.Size = new System.Drawing.Size(938, 421);
+            this.panelDraw.TabIndex = 3;
+            this.panelDraw.Paint += new System.Windows.Forms.PaintEventHandler(this.panelDraw_Paint);
+            this.panelDraw.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.panelDraw_MouseDoubleClick);
+            this.panelDraw.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelDraw_MouseDown);
+            this.panelDraw.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelDraw_MouseMove);
+            this.panelDraw.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelDraw_MouseUp);
+            //
+            // btnGraph
+            //
+            this.btnGraph.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnGraph.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnGraph.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnGraph.BorderRadius = 20;
+            this.btnGraph.BorderSize = 0;
+            this.btnGraph.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnGraph.FlatAppearance.BorderSize = 0;
+            this.btnGraph.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnGraph.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGraph.ForeColor = System.Drawing.Color.Transparent;
+            this.btnGraph.Image = global::DoThi.Properties.Resources.Save_1;
+            this.btnGraph.Location = new System.Drawing.Point(3, 49);
+            this.btnGraph.Name = "btnGraph";
+            this.btnGraph.Size = new System.Drawing.Size(150, 40);
+            this.btnGraph.TabIndex = 6;
+            this.btnGraph.Text = "Graph";
+            this.btnGraph.TextColor = System.Drawing.Color.Transparent;
+            this.btnGraph.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnGraph.UseVisualStyleBackColor = false;
+            this.btnGraph.Click += new System.EventHandler(this.btnGraph_Click);
             // 
             // btnClear
             // 
-            btnClear.BackColor = Color.SaddleBrown;
-            btnClear.BackgroundColor = Color.SaddleBrown;
-            btnClear.BorderColor = Color.PaleVioletRed;
-            btnClear.BorderRadius = 20;
-            btnClear.BorderSize = 0;
-            btnClear.Cursor = Cursors.Hand;
-            btnClear.FlatAppearance.BorderSize = 0;
-            btnClear.FlatStyle = FlatStyle.Flat;
-            btnClear.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnClear.ForeColor = Color.Transparent;
-            btnClear.Location = new Point(627, 3);
-            btnClear.Name = "btnClear";
-            btnClear.Size = new Size(150, 40);
-            btnClear.TabIndex = 2;
-            btnClear.Text = "Clear";
-            btnClear.TextColor = Color.Transparent;
-            btnClear.UseVisualStyleBackColor = false;
-            btnClear.Click += btnClear_Click;
-            // 
-            // btn_select
-            // 
-            btn_select.BackColor = Color.SaddleBrown;
-            btn_select.BackgroundColor = Color.SaddleBrown;
-            btn_select.BorderColor = Color.PaleVioletRed;
-            btn_select.BorderRadius = 20;
-            btn_select.BorderSize = 0;
-            btn_select.Cursor = Cursors.Hand;
-            btn_select.FlatAppearance.BorderSize = 0;
-            btn_select.FlatStyle = FlatStyle.Flat;
-            btn_select.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_select.ForeColor = Color.Transparent;
-            btn_select.Image = (Image)resources.GetObject("btn_select.Image");
-            btn_select.Location = new Point(3, 3);
-            btn_select.Name = "btn_select";
-            btn_select.Size = new Size(150, 40);
-            btn_select.TabIndex = 3;
-            btn_select.Text = "Chọn";
-            btn_select.TextColor = Color.Transparent;
-            btn_select.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btn_select.UseVisualStyleBackColor = false;
-            btn_select.Click += btnSelect_Click;
-            // 
-            // btn_SearchMenu
-            // 
-            btn_SearchMenu.BackColor = Color.SaddleBrown;
-            btn_SearchMenu.BackgroundColor = Color.SaddleBrown;
-            btn_SearchMenu.BorderColor = Color.PaleVioletRed;
-            btn_SearchMenu.BorderRadius = 20;
-            btn_SearchMenu.BorderSize = 0;
-            btn_SearchMenu.Cursor = Cursors.Hand;
-            btn_SearchMenu.FlatAppearance.BorderSize = 0;
-            btn_SearchMenu.FlatStyle = FlatStyle.Flat;
-            btn_SearchMenu.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_SearchMenu.ForeColor = Color.Transparent;
-            btn_SearchMenu.Image = (Image)resources.GetObject("btn_SearchMenu.Image");
-            btn_SearchMenu.Location = new Point(783, 3);
-            btn_SearchMenu.Name = "btn_SearchMenu";
-            btn_SearchMenu.Size = new Size(150, 40);
-            btn_SearchMenu.TabIndex = 5;
-            btn_SearchMenu.Text = "Tìm";
-            btn_SearchMenu.TextAlign = ContentAlignment.MiddleRight;
-            btn_SearchMenu.TextColor = Color.Transparent;
-            btn_SearchMenu.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btn_SearchMenu.UseVisualStyleBackColor = false;
-            btn_SearchMenu.Click += btn_Search_Click;
-            // 
-            // btn_Xoa
-            // 
-            btn_Xoa.BackColor = Color.SaddleBrown;
-            btn_Xoa.BackgroundColor = Color.SaddleBrown;
-            btn_Xoa.BorderColor = Color.PaleVioletRed;
-            btn_Xoa.BorderRadius = 20;
-            btn_Xoa.BorderSize = 0;
-            btn_Xoa.Cursor = Cursors.Hand;
-            btn_Xoa.FlatAppearance.BorderSize = 0;
-            btn_Xoa.FlatStyle = FlatStyle.Flat;
-            btn_Xoa.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_Xoa.ForeColor = Color.Transparent;
-            btn_Xoa.Image = (Image)resources.GetObject("btn_Xoa.Image");
-            btn_Xoa.Location = new Point(471, 3);
-            btn_Xoa.Name = "btn_Xoa";
-            btn_Xoa.RightToLeft = RightToLeft.No;
-            btn_Xoa.Size = new Size(150, 40);
-            btn_Xoa.TabIndex = 4;
-            btn_Xoa.Text = "Xoá";
-            btn_Xoa.TextColor = Color.Transparent;
-            btn_Xoa.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btn_Xoa.UseVisualStyleBackColor = false;
-            btn_Xoa.Click += btnXoa_Click;
-            // 
-            // btn_ThemCanh
-            // 
-            btn_ThemCanh.BackColor = Color.SaddleBrown;
-            btn_ThemCanh.BackgroundColor = Color.SaddleBrown;
-            btn_ThemCanh.BorderColor = Color.PaleVioletRed;
-            btn_ThemCanh.BorderRadius = 20;
-            btn_ThemCanh.BorderSize = 0;
-            btn_ThemCanh.Cursor = Cursors.Hand;
-            btn_ThemCanh.FlatAppearance.BorderSize = 0;
-            btn_ThemCanh.FlatStyle = FlatStyle.Flat;
-            btn_ThemCanh.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_ThemCanh.ForeColor = Color.Transparent;
-            btn_ThemCanh.Image = (Image)resources.GetObject("btn_ThemCanh.Image");
-            btn_ThemCanh.ImageAlign = ContentAlignment.MiddleLeft;
-            btn_ThemCanh.Location = new Point(315, 3);
-            btn_ThemCanh.Name = "btn_ThemCanh";
-            btn_ThemCanh.Size = new Size(150, 40);
-            btn_ThemCanh.TabIndex = 1;
-            btn_ThemCanh.Text = "Thêm Cạnh";
-            btn_ThemCanh.TextColor = Color.Transparent;
-            btn_ThemCanh.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btn_ThemCanh.UseVisualStyleBackColor = false;
-            btn_ThemCanh.Click += btnAddEdge_Click;
-            // 
-            // btn_ThemDinh
-            // 
-            btn_ThemDinh.BackColor = Color.SaddleBrown;
-            btn_ThemDinh.BackgroundColor = Color.SaddleBrown;
-            btn_ThemDinh.BorderColor = Color.PaleVioletRed;
-            btn_ThemDinh.BorderRadius = 20;
-            btn_ThemDinh.BorderSize = 0;
-            btn_ThemDinh.Cursor = Cursors.Hand;
-            btn_ThemDinh.FlatAppearance.BorderSize = 0;
-            btn_ThemDinh.FlatStyle = FlatStyle.Flat;
-            btn_ThemDinh.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_ThemDinh.ForeColor = Color.Transparent;
-            btn_ThemDinh.Image = (Image)resources.GetObject("btn_ThemDinh.Image");
-            btn_ThemDinh.ImageAlign = ContentAlignment.MiddleLeft;
-            btn_ThemDinh.Location = new Point(159, 3);
-            btn_ThemDinh.Name = "btn_ThemDinh";
-            btn_ThemDinh.Size = new Size(150, 40);
-            btn_ThemDinh.TabIndex = 0;
-            btn_ThemDinh.Text = "Thêm Đỉnh";
-            btn_ThemDinh.TextColor = Color.Transparent;
-            btn_ThemDinh.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btn_ThemDinh.UseVisualStyleBackColor = false;
-            btn_ThemDinh.Click += btnAddVertex_Click;
-            // 
-            // drMenuGraph
-            // 
-            drMenuGraph.BackColor = SystemColors.Control;
-            drMenuGraph.IsMainMenu = false;
-            drMenuGraph.Items.AddRange(new ToolStripItem[] { SaveGraph, LoadGraph });
-            drMenuGraph.MenuItemHeight = 20;
-            drMenuGraph.MenuItemTextColor = Color.White;
-            drMenuGraph.Name = "drMenuGraph";
-            drMenuGraph.PrimaryColor = Color.SaddleBrown;
-            drMenuGraph.Size = new Size(134, 48);
-            // 
-            // SaveGraph
-            // 
-            SaveGraph.BackColor = Color.Sienna;
-            SaveGraph.Name = "SaveGraph";
-            SaveGraph.Size = new Size(133, 22);
-            SaveGraph.Text = "Save Graph";
-            SaveGraph.Click += saveGraphToolStripMenuItem_Click;
-            // 
-            // LoadGraph
-            // 
-            LoadGraph.BackColor = Color.Sienna;
-            LoadGraph.Name = "LoadGraph";
-            LoadGraph.Size = new Size(133, 22);
-            LoadGraph.Text = "LoadGraph";
-            LoadGraph.Click += loadGraphToolStripMenuItem_Click;
-            // 
-            // drTim
-            // 
-            drTim.IsMainMenu = true;
-            drTim.Items.AddRange(new ToolStripItem[] { DFS, BFS, MailMan, MSTree, SPaths });
-            drTim.MenuItemHeight = 25;
-            drTim.MenuItemTextColor = Color.Empty;
-            drTim.Name = "drTim";
-            drTim.PrimaryColor = Color.Empty;
-            drTim.Size = new Size(183, 114);
-            // 
-            // DFS
-            // 
-            DFS.BackColor = Color.Sienna;
-            DFS.Name = "DFS";
-            DFS.Size = new Size(182, 22);
-            DFS.Text = "DFS";
-            DFS.Click += DFS_Click;
-            // 
-            // BFS
-            // 
-            BFS.BackColor = Color.Sienna;
-            BFS.Name = "BFS";
-            BFS.Size = new Size(182, 22);
-            BFS.Text = "BFS";
-            BFS.Click += BFS_Click;
-            // 
-            // MailMan
-            // 
-            MailMan.BackColor = Color.Sienna;
-            MailMan.Name = "MailMan";
-            MailMan.Size = new Size(182, 22);
-            MailMan.Text = "MailMan";
-            MailMan.Click += MailMan_Click;
-            // 
-            // MSTree
-            // 
-            MSTree.BackColor = Color.Sienna;
-            MSTree.DropDownItems.AddRange(new ToolStripItem[] { Kruskal, Prim });
-            MSTree.Name = "MSTree";
-            MSTree.Size = new Size(182, 22);
-            MSTree.Text = "Cây khung nhỏ nhất";
-            // 
-            // Kruskal
-            // 
-            Kruskal.BackColor = Color.Sienna;
-            Kruskal.Name = "Kruskal";
-            Kruskal.Size = new Size(112, 22);
-            Kruskal.Text = "Kruskal";
-            Kruskal.Click += Kruskal_Click;
-            // 
-            // Prim
-            // 
-            Prim.BackColor = Color.Sienna;
-            Prim.Name = "Prim";
-            Prim.Size = new Size(112, 22);
-            Prim.Text = "Prim";
-            Prim.Click += Prim_Click;
-            // 
-            // SPaths
-            // 
-            SPaths.BackColor = Color.Sienna;
-            SPaths.DropDownItems.AddRange(new ToolStripItem[] { Dijkstra });
-            SPaths.Name = "SPaths";
-            SPaths.Size = new Size(182, 22);
-            SPaths.Text = "Đường đi ngắn nhất";
-            // 
-            // Dijkstra
-            // 
-            Dijkstra.BackColor = Color.Sienna;
-            Dijkstra.Name = "Dijkstra";
-            Dijkstra.Size = new Size(113, 22);
-            Dijkstra.Text = "Dijkstra";
-            Dijkstra.Click += Dijkstra_Click;
+            this.btnClear.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnClear.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnClear.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnClear.BorderRadius = 20;
+            this.btnClear.BorderSize = 0;
+            this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClear.FlatAppearance.BorderSize = 0;
+            this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClear.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnClear.ForeColor = System.Drawing.Color.Transparent;
+            this.btnClear.Location = new System.Drawing.Point(627, 3);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(150, 40);
+            this.btnClear.TabIndex = 2;
+            this.btnClear.Text = "Clear";
+            this.btnClear.TextColor = System.Drawing.Color.Transparent;
+            this.btnClear.UseVisualStyleBackColor = false;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            //
+            // btnSelect
+            //
+            this.btnSelect.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnSelect.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnSelect.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnSelect.BorderRadius = 20;
+            this.btnSelect.BorderSize = 0;
+            this.btnSelect.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSelect.FlatAppearance.BorderSize = 0;
+            this.btnSelect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSelect.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSelect.ForeColor = System.Drawing.Color.Transparent;
+            this.btnSelect.Image = ((System.Drawing.Image)(resources.GetObject("btnSelect.Image")));
+            this.btnSelect.Location = new System.Drawing.Point(3, 3);
+            this.btnSelect.Name = "btnSelect";
+            this.btnSelect.Size = new System.Drawing.Size(150, 40);
+            this.btnSelect.TabIndex = 3;
+            this.btnSelect.Text = "Select";
+            this.btnSelect.TextColor = System.Drawing.Color.Transparent;
+            this.btnSelect.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnSelect.UseVisualStyleBackColor = false;
+            this.btnSelect.Click += new System.EventHandler(this.btnSelect_Click);
+            //
+            // btnSearchMenu
+            //
+            this.btnSearchMenu.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnSearchMenu.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnSearchMenu.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnSearchMenu.BorderRadius = 20;
+            this.btnSearchMenu.BorderSize = 0;
+            this.btnSearchMenu.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSearchMenu.FlatAppearance.BorderSize = 0;
+            this.btnSearchMenu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSearchMenu.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSearchMenu.ForeColor = System.Drawing.Color.Transparent;
+            this.btnSearchMenu.Image = ((System.Drawing.Image)(resources.GetObject("btnSearchMenu.Image")));
+            this.btnSearchMenu.Location = new System.Drawing.Point(783, 3);
+            this.btnSearchMenu.Name = "btnSearchMenu";
+            this.btnSearchMenu.Size = new System.Drawing.Size(150, 40);
+            this.btnSearchMenu.TabIndex = 5;
+            this.btnSearchMenu.Text = "Search";
+            this.btnSearchMenu.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnSearchMenu.TextColor = System.Drawing.Color.Transparent;
+            this.btnSearchMenu.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnSearchMenu.UseVisualStyleBackColor = false;
+            this.btnSearchMenu.Click += new System.EventHandler(this.btnSearch_Click);
+            //
+            // btnDelete
+            //
+            this.btnDelete.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnDelete.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnDelete.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnDelete.BorderRadius = 20;
+            this.btnDelete.BorderSize = 0;
+            this.btnDelete.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDelete.FlatAppearance.BorderSize = 0;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDelete.ForeColor = System.Drawing.Color.Transparent;
+            this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
+            this.btnDelete.Location = new System.Drawing.Point(471, 3);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.btnDelete.Size = new System.Drawing.Size(150, 40);
+            this.btnDelete.TabIndex = 4;
+            this.btnDelete.Text = "Delete";
+            this.btnDelete.TextColor = System.Drawing.Color.Transparent;
+            this.btnDelete.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnDelete.UseVisualStyleBackColor = false;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            //
+            // btnAddEdge
+            //
+            this.btnAddEdge.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnAddEdge.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnAddEdge.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnAddEdge.BorderRadius = 20;
+            this.btnAddEdge.BorderSize = 0;
+            this.btnAddEdge.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddEdge.FlatAppearance.BorderSize = 0;
+            this.btnAddEdge.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddEdge.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAddEdge.ForeColor = System.Drawing.Color.Transparent;
+            this.btnAddEdge.Image = ((System.Drawing.Image)(resources.GetObject("btnAddEdge.Image")));
+            this.btnAddEdge.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnAddEdge.Location = new System.Drawing.Point(315, 3);
+            this.btnAddEdge.Name = "btnAddEdge";
+            this.btnAddEdge.Size = new System.Drawing.Size(150, 40);
+            this.btnAddEdge.TabIndex = 1;
+            this.btnAddEdge.Text = "Add Edge";
+            this.btnAddEdge.TextColor = System.Drawing.Color.Transparent;
+            this.btnAddEdge.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnAddEdge.UseVisualStyleBackColor = false;
+            this.btnAddEdge.Click += new System.EventHandler(this.btnAddEdge_Click);
+            //
+            // btnAddVertex
+            //
+            this.btnAddVertex.BackColor = System.Drawing.Color.SaddleBrown;
+            this.btnAddVertex.BackgroundColor = System.Drawing.Color.SaddleBrown;
+            this.btnAddVertex.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnAddVertex.BorderRadius = 20;
+            this.btnAddVertex.BorderSize = 0;
+            this.btnAddVertex.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddVertex.FlatAppearance.BorderSize = 0;
+            this.btnAddVertex.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddVertex.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAddVertex.ForeColor = System.Drawing.Color.Transparent;
+            this.btnAddVertex.Image = ((System.Drawing.Image)(resources.GetObject("btnAddVertex.Image")));
+            this.btnAddVertex.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnAddVertex.Location = new System.Drawing.Point(159, 3);
+            this.btnAddVertex.Name = "btnAddVertex";
+            this.btnAddVertex.Size = new System.Drawing.Size(150, 40);
+            this.btnAddVertex.TabIndex = 0;
+            this.btnAddVertex.Text = "Add Vertex";
+            this.btnAddVertex.TextColor = System.Drawing.Color.Transparent;
+            this.btnAddVertex.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnAddVertex.UseVisualStyleBackColor = false;
+            this.btnAddVertex.Click += new System.EventHandler(this.btnAddVertex_Click);
+            //
+            // drpGraph
+            //
+            this.drpGraph.BackColor = System.Drawing.SystemColors.Control;
+            this.drpGraph.IsMainMenu = false;
+            this.drpGraph.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveGraphToolStripMenuItem,
+            this.loadGraphToolStripMenuItem});
+            this.drpGraph.MenuItemHeight = 20;
+            this.drpGraph.MenuItemTextColor = System.Drawing.Color.White;
+            this.drpGraph.Name = "drMenuGraph";
+            this.drpGraph.PrimaryColor = System.Drawing.Color.SaddleBrown;
+            this.drpGraph.Size = new System.Drawing.Size(134, 48);
+            //
+            // saveGraphToolStripMenuItem
+            //
+            this.saveGraphToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.saveGraphToolStripMenuItem.Name = "saveGraphToolStripMenuItem";
+            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.saveGraphToolStripMenuItem.Text = "Save Graph";
+            this.saveGraphToolStripMenuItem.Click += new System.EventHandler(this.saveGraphToolStripMenuItem_Click);
+            //
+            // loadGraphToolStripMenuItem
+            //
+            this.loadGraphToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.loadGraphToolStripMenuItem.Name = "loadGraphToolStripMenuItem";
+            this.loadGraphToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.loadGraphToolStripMenuItem.Text = "Load Graph";
+            this.loadGraphToolStripMenuItem.Click += new System.EventHandler(this.loadGraphToolStripMenuItem_Click);
+            //
+            // drpSearch
+            //
+            this.drpSearch.IsMainMenu = true;
+            this.drpSearch.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.dfsToolStripMenuItem,
+            this.bfsToolStripMenuItem,
+            this.chinesePostmanToolStripMenuItem,
+            this.mstToolStripMenuItem,
+            this.shortestPathToolStripMenuItem});
+            this.drpSearch.MenuItemHeight = 25;
+            this.drpSearch.MenuItemTextColor = System.Drawing.Color.Empty;
+            this.drpSearch.Name = "drTim";
+            this.drpSearch.PrimaryColor = System.Drawing.Color.Empty;
+            this.drpSearch.Size = new System.Drawing.Size(183, 114);
+            //
+            // dfsToolStripMenuItem
+            //
+            this.dfsToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.dfsToolStripMenuItem.Name = "dfsToolStripMenuItem";
+            this.dfsToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.dfsToolStripMenuItem.Text = "DFS";
+            this.dfsToolStripMenuItem.Click += new System.EventHandler(this.DFS_Click);
+            //
+            // bfsToolStripMenuItem
+            //
+            this.bfsToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.bfsToolStripMenuItem.Name = "bfsToolStripMenuItem";
+            this.bfsToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.bfsToolStripMenuItem.Text = "BFS";
+            this.bfsToolStripMenuItem.Click += new System.EventHandler(this.BFS_Click);
+            //
+            // chinesePostmanToolStripMenuItem
+            //
+            this.chinesePostmanToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.chinesePostmanToolStripMenuItem.Name = "chinesePostmanToolStripMenuItem";
+            this.chinesePostmanToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.chinesePostmanToolStripMenuItem.Text = "Chinese Postman";
+            this.chinesePostmanToolStripMenuItem.Click += new System.EventHandler(this.ChinesePostman_Click);
+            //
+            // mstToolStripMenuItem
+            //
+            this.mstToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.mstToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.kruskalToolStripMenuItem,
+            this.primToolStripMenuItem});
+            this.mstToolStripMenuItem.Name = "mstToolStripMenuItem";
+            this.mstToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.mstToolStripMenuItem.Text = "Minimum Spanning Tree";
+            //
+            // kruskalToolStripMenuItem
+            //
+            this.kruskalToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.kruskalToolStripMenuItem.Name = "kruskalToolStripMenuItem";
+            this.kruskalToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.kruskalToolStripMenuItem.Text = "Kruskal";
+            this.kruskalToolStripMenuItem.Click += new System.EventHandler(this.Kruskal_Click);
+            //
+            // primToolStripMenuItem
+            //
+            this.primToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.primToolStripMenuItem.Name = "primToolStripMenuItem";
+            this.primToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.primToolStripMenuItem.Text = "Prim";
+            this.primToolStripMenuItem.Click += new System.EventHandler(this.Prim_Click);
+            //
+            // shortestPathToolStripMenuItem
+            //
+            this.shortestPathToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.shortestPathToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.dijkstraToolStripMenuItem});
+            this.shortestPathToolStripMenuItem.Name = "shortestPathToolStripMenuItem";
+            this.shortestPathToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.shortestPathToolStripMenuItem.Text = "Shortest Path";
+            //
+            // dijkstraToolStripMenuItem
+            //
+            this.dijkstraToolStripMenuItem.BackColor = System.Drawing.Color.Sienna;
+            this.dijkstraToolStripMenuItem.Name = "dijkstraToolStripMenuItem";
+            this.dijkstraToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.dijkstraToolStripMenuItem.Text = "Dijkstra";
+            this.dijkstraToolStripMenuItem.Click += new System.EventHandler(this.Dijkstra_Click);
             // 
             // flowLayoutPanel1
             // 
-            flowLayoutPanel1.BackColor = Color.LightSalmon;
-            flowLayoutPanel1.Controls.Add(btn_select);
-            flowLayoutPanel1.Controls.Add(btn_ThemDinh);
-            flowLayoutPanel1.Controls.Add(btn_ThemCanh);
-            flowLayoutPanel1.Controls.Add(btn_Xoa);
-            flowLayoutPanel1.Controls.Add(btnClear);
-            flowLayoutPanel1.Controls.Add(btn_SearchMenu);
-            flowLayoutPanel1.Controls.Add(btn_Graph);
-            flowLayoutPanel1.Dock = DockStyle.Bottom;
-            flowLayoutPanel1.Location = new Point(0, 421);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(938, 100);
-            flowLayoutPanel1.TabIndex = 7;
+            this.flowLayoutPanel1.BackColor = System.Drawing.Color.LightSalmon;
+            this.flowLayoutPanel1.Controls.Add(this.btnSelect);
+            this.flowLayoutPanel1.Controls.Add(this.btnAddVertex);
+            this.flowLayoutPanel1.Controls.Add(this.btnAddEdge);
+            this.flowLayoutPanel1.Controls.Add(this.btnDelete);
+            this.flowLayoutPanel1.Controls.Add(this.btnClear);
+            this.flowLayoutPanel1.Controls.Add(this.btnSearchMenu);
+            this.flowLayoutPanel1.Controls.Add(this.btnGraph);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 421);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(938, 100);
+            this.flowLayoutPanel1.TabIndex = 7;
             // 
             // MatrixShow
             // 
-            Controls.Add(flowLayoutPanel1);
-            Controls.Add(panelMain);
-            Name = "MatrixShow";
-            Size = new Size(938, 521);
-            panelMain.ResumeLayout(false);
-            panelDis.ResumeLayout(false);
-            panelE.ResumeLayout(false);
-            panelE.PerformLayout();
-            MatranGroup.ResumeLayout(false);
-            MatranGroup.PerformLayout();
-            drMenuGraph.ResumeLayout(false);
-            drTim.ResumeLayout(false);
-            flowLayoutPanel1.ResumeLayout(false);
-            ResumeLayout(false);
-            PerformLayout();
+            this.Controls.Add(this.flowLayoutPanel1);
+            this.Controls.Add(this.panelMain);
+            this.Name = "MatrixShow";
+            this.Size = new System.Drawing.Size(938, 521);
+            this.panelMain.ResumeLayout(false);
+            this.panelDisplay.ResumeLayout(false);
+            this.panelControls.ResumeLayout(false);
+            this.panelControls.PerformLayout();
+            this.groupMatrixType.ResumeLayout(false);
+            this.groupMatrixType.PerformLayout();
+            this.drpGraph.ResumeLayout(false);
+            this.drpSearch.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
 
-        private Panel panelMain;
-        private Panel panelDis;
-        private Panel panelE;
-        private Label label1;
-        private TextBox txtNodeCount;
-        private Panel paneldraw;
-        private Compoments.Round_Button btn_Xoa;
-        private Compoments.Round_Button btn_select;
-        private Compoments.Round_Button btnClear;
-        private Compoments.Round_Button btn_ThemCanh;
-        private Compoments.Round_Button btn_ThemDinh;
-        private Compoments.Round_Button btn_SearchMenu;
-        private Label label3;
-        private Label label2;
-        private ComboBox cb_Second;
-        private ComboBox cb_First;
-        private Compoments.Round_Button btn_Graph;
-        private GroupBox MatranGroup;
-        private RadioButton radio_WeightMatrix;
-        private RadioButton radio_AdjMatrix;
-        private Button btn_ClearMovingBall;
-        private Compoments.RJDropdownMenu drMenuGraph;
-        private ToolStripMenuItem SaveGraph;
-        private ToolStripMenuItem LoadGraph;
-        private Compoments.RJDropdownMenu drTim;
-        private ToolStripMenuItem DFS;
-        private ToolStripMenuItem BFS;
-        private ToolStripMenuItem MailMan;
-        private ToolStripMenuItem MSTree;
-        private ToolStripMenuItem Kruskal;
-        private ToolStripMenuItem Prim;
-        private ToolStripMenuItem SPaths;
-        private ToolStripMenuItem Dijkstra;
-        private FlowLayoutPanel flowLayoutPanel1;
-        private Label label4;
-        private TextBox txtZoom;
-        private Button btn_totxtmatrix;
+        private System.Windows.Forms.Panel panelMain;
+        private System.Windows.Forms.Panel panelDisplay;
+        private System.Windows.Forms.Panel panelControls;
+        private System.Windows.Forms.Label labelNodeCount;
+        private System.Windows.Forms.TextBox txtNodeCount;
+        private System.Windows.Forms.Panel panelDraw;
+        private Components.RoundButton btnDelete;
+        private Components.RoundButton btnSelect;
+        private Components.RoundButton btnClear;
+        private Components.RoundButton btnAddEdge;
+        private Components.RoundButton btnAddVertex;
+        private Components.RoundButton btnSearchMenu;
+        private System.Windows.Forms.Label labelTo;
+        private System.Windows.Forms.Label labelFrom;
+        private System.Windows.Forms.ComboBox cbEndVertex;
+        private System.Windows.Forms.ComboBox cbStartVertex;
+        private Components.RoundButton btnGraph;
+        private System.Windows.Forms.GroupBox groupMatrixType;
+        private System.Windows.Forms.RadioButton radioWeightMatrix;
+        private System.Windows.Forms.RadioButton radioAdjMatrix;
+        private System.Windows.Forms.Button btnClearMovingBall;
+        private Components.RJDropdownMenu drpGraph;
+        private System.Windows.Forms.ToolStripMenuItem saveGraphToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadGraphToolStripMenuItem;
+        private Components.RJDropdownMenu drpSearch;
+        private System.Windows.Forms.ToolStripMenuItem dfsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem bfsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem chinesePostmanToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mstToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem kruskalToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem primToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem shortestPathToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dijkstraToolStripMenuItem;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.Label labelZoom;
+        private System.Windows.Forms.TextBox txtZoom;
+        private System.Windows.Forms.Button btnExportMatrix;
     }
 }

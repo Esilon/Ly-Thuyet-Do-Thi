@@ -1,162 +1,128 @@
-﻿namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
-    class MovingBall
+    public class MovingBall
     {
-        private const int SPEED = 5;
-        private readonly System.Windows.Forms.Timer timer;
-        private int currentEdgeIndex;
-        private float deltaX;
-        private float deltaY;
-        public List<PointF> EdgePath;
-        private readonly Control parent;
-        private bool blink;
-        private PointF currentPosition;
-        private bool isCompleted;
+        private const int Speed = 5;
+        private readonly System.Windows.Forms.Timer _timer;
+        private int _currentEdgeIndex;
+        private float _deltaX;
+        private float _deltaY;
+        public List<PointF> EdgePath { get; set; }
+        private readonly Control _parent;
+        private bool _blink;
+        private PointF _currentPosition;
+        private bool _isCompleted;
 
         public bool IsRunning { get; private set; }
 
         public MovingBall(Control parent)
         {
-            EdgePath = [];
-            timer = new System.Windows.Forms.Timer
-            {
-                Interval = 10
-            };
-            this.parent = parent;
-            timer.Tick += Timer_Tick;
+            EdgePath = new List<PointF>();
+            _timer = new System.Windows.Forms.Timer { Interval = 10 };
+            _parent = parent;
+            _timer.Tick += Timer_Tick;
         }
 
         public void Reset()
         {
-            currentEdgeIndex = 0;
+            _currentEdgeIndex = 0;
             if (EdgePath.Count > 0)
             {
-                currentPosition = EdgePath[0];
+                _currentPosition = EdgePath[0];
             }
-            isCompleted = false;
+            _isCompleted = false;
         }
 
         public void Start()
         {
-            if (EdgePath.Count > 1)
-            {
-                currentEdgeIndex = 0;
-                currentPosition = EdgePath[0];
-                Prepare();
-                timer.Start();
-                IsRunning = true;
-                isCompleted = false;
-            }
+            if (EdgePath.Count <= 1) return;
+
+            Reset();
+            PrepareNextSegment();
+            _timer.Start();
+            IsRunning = true;
         }
 
         public void Stop()
         {
-            timer.Stop();
+            _timer.Stop();
             IsRunning = false;
         }
 
-        private void Prepare()
+        private void PrepareNextSegment()
         {
-            if (currentEdgeIndex < EdgePath.Count - 1)
+            if (_currentEdgeIndex >= EdgePath.Count - 1)
             {
-                PointF startPoint = currentPosition;
-                PointF endPoint = EdgePath[currentEdgeIndex + 1];
-
-                deltaX = endPoint.X - startPoint.X;
-                deltaY = endPoint.Y - startPoint.Y;
-
-                float length = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-
-                if (length > 0)
-                {
-                    deltaX = deltaX / length * SPEED;
-                    deltaY = deltaY / length * SPEED;
-                }
+                _isCompleted = true;
+                Stop();
+                return;
             }
-            else
+
+            PointF startPoint = _currentPosition;
+            PointF endPoint = EdgePath[_currentEdgeIndex + 1];
+
+            _deltaX = endPoint.X - startPoint.X;
+            _deltaY = endPoint.Y - startPoint.Y;
+
+            float length = (float)Math.Sqrt(_deltaX * _deltaX + _deltaY * _deltaY);
+
+            if (length > 0)
             {
-                // Đã đến cuối đường đi
-                isCompleted = true;
-                timer.Stop();
-                IsRunning = false;
+                _deltaX = _deltaX / length * Speed;
+                _deltaY = _deltaY / length * Speed;
             }
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (currentEdgeIndex < EdgePath.Count - 1)
+            if (_isCompleted)
             {
-                PointF endPoint = EdgePath[currentEdgeIndex + 1];
-
-                float distance = (float)Math.Sqrt(Math.Pow(endPoint.X - currentPosition.X, 2) + Math.Pow(endPoint.Y - currentPosition.Y, 2));
-
-                if (distance < SPEED)
-                {
-                    currentPosition = endPoint;
-                    currentEdgeIndex++;
-                    if (currentEdgeIndex >= EdgePath.Count - 1)
-                    {
-                        // Nếu đã đến cuối cùng của đường đi, có thể quay lại đầu
-                        if (isCompleted)
-                        {
-                            currentEdgeIndex = 0;
-                            isCompleted = false; // Đặt lại để có thể tái sử dụng
-                        }
-                    }
-                    Prepare();
-                }
-                else
-                {
-                    currentPosition = new PointF(currentPosition.X + deltaX, currentPosition.Y + deltaY);
-                }
-
-                parent.Invalidate(); // Yêu cầu vẽ lại Panel để cập nhật đường đi mới
+                Stop();
+                return;
             }
+
+            PointF endPoint = EdgePath[_currentEdgeIndex + 1];
+            float distance = (float)Math.Sqrt(Math.Pow(endPoint.X - _currentPosition.X, 2) + Math.Pow(endPoint.Y - _currentPosition.Y, 2));
+
+            if (distance < Speed)
+            {
+                _currentPosition = endPoint;
+                _currentEdgeIndex++;
+                PrepareNextSegment();
+            }
+            else
+            {
+                _currentPosition = new PointF(_currentPosition.X + _deltaX, _currentPosition.Y + _deltaY);
+            }
+
+            _parent.Invalidate();
         }
 
         public void Draw(Graphics g)
         {
-            // Vẽ lại đường đi từ EdgePath
-            using (Pen dashedPen = new(Color.Red, 2))
-            {
-                dashedPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+            if (EdgePath.Count <= 1) return;
 
+            // Draw the path.
+            using (var dashedPen = new Pen(Color.Red, 2) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash })
+            {
                 for (int i = 0; i < EdgePath.Count - 1; i++)
                 {
                     g.DrawLine(dashedPen, EdgePath[i], EdgePath[i + 1]);
                 }
             }
 
-            // Vẽ quả bóng
-            if (EdgePath.Count > 0)
+            // Draw the ball.
+            if (IsRunning)
             {
-                if (IsRunning)
-                {
-                    if (blink)
-                        g.FillEllipse(Brushes.Red, currentPosition.X - 5, currentPosition.Y - 5, 10, 10);
-                    else
-                        g.FillEllipse(Brushes.Blue, currentPosition.X - 5, currentPosition.Y - 5, 10, 10);
-
-                    blink = !blink;
-                }
+                g.FillEllipse(_blink ? Brushes.Red : Brushes.Blue, _currentPosition.X - 5, _currentPosition.Y - 5, 10, 10);
+                _blink = !_blink;
             }
 
-            // Vẽ chú thích đầu và cuối đường đi
-            for (int i = 0; i < EdgePath.Count; i++)
-            {
-                if (i == 0 && EdgePath.Count > 1)
-                {
-                    using Font font = new("Arial", 12);
-                    using Brush brush = new SolidBrush(Color.Black);
-                    g.DrawString("Đầu", font, brush, EdgePath[i].X + 20, EdgePath[i].Y - 20);
-                }
-                else if (i == EdgePath.Count - 1 && EdgePath.Count > 1)
-                {
-                    using Font font = new("Arial", 12);
-                    using Brush brush = new SolidBrush(Color.Black);
-                    g.DrawString("Cuối", font, brush, EdgePath[i].X + 20, EdgePath[i].Y - 20);
-                }
-            }
+            // Draw start and end labels.
+            using var font = new Font("Arial", 12);
+            using var brush = new SolidBrush(Color.Black);
+            g.DrawString("Start", font, brush, EdgePath[0].X + 20, EdgePath[0].Y - 20);
+            g.DrawString("End", font, brush, EdgePath[^1].X + 20, EdgePath[^1].Y - 20);
         }
     }
 }

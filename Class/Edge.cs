@@ -1,23 +1,25 @@
-﻿namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
     [Serializable]
-    public class Edge(int vertex1, int vertex2, int weight, bool isDirected) : IComparable<Edge>
+    public class Edge : IComparable<Edge>
     {
-        public int Vertex1 { get; set; } = vertex1;
-        public int Vertex2 { get; set; } = vertex2;
-        public int Weight { get; set; } = weight;
-        public bool IsDirected { get; set; } = isDirected;
+        public int Vertex1 { get; }
+        public int Vertex2 { get; }
+        public int Weight { get; }
+        public bool IsDirected { get; }
 
-        public int CompareTo(Edge other)
+        public Edge(int vertex1, int vertex2, int weight, bool isDirected)
         {
-            return Weight.CompareTo(other.Weight);
+            Vertex1 = vertex1;
+            Vertex2 = vertex2;
+            Weight = weight;
+            IsDirected = isDirected;
         }
-        public class EdgeComparer : IComparer<Edge>
+
+        public int CompareTo(Edge? other)
         {
-            public int Compare(Edge x, Edge y)
-            {
-                return x.Weight.CompareTo(y.Weight);
-            }
+            if (other == null) return 1;
+            return Weight.CompareTo(other.Weight);
         }
     }
 }

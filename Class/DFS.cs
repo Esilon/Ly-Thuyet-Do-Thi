@@ -1,20 +1,35 @@
-﻿namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
-    public class DFS(int[,] adjacencyMatrix)
+    /// <summary>
+    /// Performs a depth-first search (DFS) on a graph represented by an adjacency matrix.
+    /// </summary>
+    public class DFS
     {
-        private readonly int[,] _adjacencyMatrix = adjacencyMatrix;
+        private readonly int[,] _adjacencyMatrix;
         private bool[]? _visited;
         private List<int> _result;
-        public List<int> PerformDFS(int startVertex)
+
+        public DFS(int[,] adjacencyMatrix)
+        {
+            _adjacencyMatrix = adjacencyMatrix;
+            _result = new List<int>();
+        }
+
+        /// <summary>
+        /// Performs a depth-first search starting from the specified vertex.
+        /// </summary>
+        /// <param name="startVertex">The starting vertex for the DFS.</param>
+        /// <returns>A list of vertices in the order they were visited.</returns>
+        public List<int> Perform(int startVertex)
         {
             int size = _adjacencyMatrix.GetLength(0);
             _visited = new bool[size];
-            _result = [];
-            DFSUtil(startVertex);
+            _result.Clear();
+            DfsUtil(startVertex);
             return _result;
         }
 
-        private void DFSUtil(int vertex)
+        private void DfsUtil(int vertex)
         {
             _visited[vertex] = true;
             _result.Add(vertex);
@@ -23,7 +38,7 @@
             {
                 if (_adjacencyMatrix[vertex, i] != 0 && !_visited[i])
                 {
-                    DFSUtil(i);
+                    DfsUtil(i);
                 }
             }
         }
