@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị
+namespace DoThi
 {
     internal static class Program
     {

@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị
+namespace DoThi
 {
     partial class Main
     {
@@ -38,17 +38,17 @@
             btnButtonMenu = new FontAwesome.Sharp.IconButton();
             labelMenuTitle = new Label();
             panelTitleBar = new Panel();
-            panelBTN = new Panel();
+            panelControls = new Panel();
             btnMinimized = new FontAwesome.Sharp.IconButton();
             btnFullScreen = new FontAwesome.Sharp.IconButton();
             btnExit = new FontAwesome.Sharp.IconButton();
             labelTitle = new Label();
             panelMain = new Panel();
-            btnSidebarMenu_Transition = new System.Windows.Forms.Timer(components);
+            sidebarTransition = new System.Windows.Forms.Timer(components);
             panelSideBarMenu.SuspendLayout();
             panelMenuTitle.SuspendLayout();
             panelTitleBar.SuspendLayout();
-            panelBTN.SuspendLayout();
+            panelControls.SuspendLayout();
             SuspendLayout();
             // 
             // panelSideBarMenu
@@ -86,7 +86,7 @@
             btnSideBarExit.Size = new Size(206, 61);
             btnSideBarExit.TabIndex = 5;
             btnSideBarExit.Tag = "btnSideBarExit";
-            btnSideBarExit.Text = "btnSideBarExit";
+            btnSideBarExit.Text = "Exit";
             btnSideBarExit.TextAlign = ContentAlignment.MiddleLeft;
             btnSideBarExit.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnSideBarExit.UseVisualStyleBackColor = false;
@@ -189,14 +189,14 @@
             labelMenuTitle.Name = "labelMenuTitle";
             labelMenuTitle.Size = new Size(156, 56);
             labelMenuTitle.TabIndex = 0;
-            labelMenuTitle.Text = "ĐỒ THỊ CHUNG";
+            labelMenuTitle.Text = "GENERAL GRAPH";
             labelMenuTitle.TextAlign = ContentAlignment.MiddleCenter;
             labelMenuTitle.MouseDown += labelMenuTitle_MouseDown;
             // 
             // panelTitleBar
             // 
             panelTitleBar.BackColor = Color.White;
-            panelTitleBar.Controls.Add(panelBTN);
+            panelTitleBar.Controls.Add(panelControls);
             panelTitleBar.Controls.Add(labelTitle);
             panelTitleBar.Dock = DockStyle.Top;
             panelTitleBar.Location = new Point(206, 0);
@@ -205,17 +205,17 @@
             panelTitleBar.TabIndex = 1;
             panelTitleBar.MouseDown += panelTitle_MouseDown;
             // 
-            // panelBTN
+            // panelControls
             // 
-            panelBTN.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            panelBTN.AutoSize = true;
-            panelBTN.Controls.Add(btnMinimized);
-            panelBTN.Controls.Add(btnFullScreen);
-            panelBTN.Controls.Add(btnExit);
-            panelBTN.Location = new Point(809, 0);
-            panelBTN.Name = "panelBTN";
-            panelBTN.Size = new Size(138, 56);
-            panelBTN.TabIndex = 1;
+            panelControls.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            panelControls.AutoSize = true;
+            panelControls.Controls.Add(btnMinimized);
+            panelControls.Controls.Add(btnFullScreen);
+            panelControls.Controls.Add(btnExit);
+            panelControls.Location = new Point(809, 0);
+            panelControls.Name = "panelControls";
+            panelControls.Size = new Size(138, 56);
+            panelControls.TabIndex = 1;
             // 
             // btnMinimized
             // 
@@ -298,10 +298,10 @@
             panelMain.Size = new Size(947, 452);
             panelMain.TabIndex = 2;
             // 
-            // btnSidebarMenu_Transition
+            // sidebarTransition
             // 
-            btnSidebarMenu_Transition.Interval = 10;
-            btnSidebarMenu_Transition.Tick += btnButtonMenu_Transition_Tick;
+            sidebarTransition.Interval = 10;
+            sidebarTransition.Tick += sidebarTransition_Tick;
             // 
             // Main
             // 
@@ -315,7 +315,7 @@
             KeyPreview = true;
             Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "ĐỒ THỊ CHUNG";
+            Text = "GENERAL GRAPH";
             Resize += Form1_Resize;
             panelSideBarMenu.ResumeLayout(false);
             panelSideBarMenu.PerformLayout();
@@ -323,7 +323,7 @@
             panelMenuTitle.PerformLayout();
             panelTitleBar.ResumeLayout(false);
             panelTitleBar.PerformLayout();
-            panelBTN.ResumeLayout(false);
+            panelControls.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -342,8 +342,8 @@
         private FontAwesome.Sharp.IconButton btnExit;
         private FontAwesome.Sharp.IconButton btnMinimized;
         private FontAwesome.Sharp.IconButton btnFullScreen;
-        private Panel panelBTN;
-        private System.Windows.Forms.Timer btnSidebarMenu_Transition;
+        private Panel panelControls;
+        private System.Windows.Forms.Timer sidebarTransition;
 
     }
 }

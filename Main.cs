@@ -1,114 +1,129 @@
-﻿using FontAwesome.Sharp;
-using Đồ_Thị.uc;
 using System.Runtime.InteropServices;
-namespace Đồ_Thị
+using DoThi.uc;
+using FontAwesome.Sharp;
+
+namespace DoThi
 {
     public partial class Main : Form
     {
-        private readonly int borderSize = 2;
-        private IconButton? currentbtn;
-        private readonly Panel leftBorderBtn;
+        private readonly int _borderSize = 2;
+        private IconButton? _currentButton;
+        private readonly Panel _leftBorderButton;
+        private bool _isSidebarExpanded = true;
+
+        // Constants for window messages and resizing
+        private const int WmNchittest = 0x84;
+        private const int WmNccalcsize = 0x83;
+        private const int Htclient = 1;
+        private const int Htleft = 10;
+        private const int Htright = 11;
+        private const int Httop = 12;
+        private const int Httopleft = 13;
+        private const int Httopright = 14;
+        private const int Htbottom = 15;
+        private const int Htbottomleft = 16;
+        private const int Htbottomright = 17;
+        private const int ResizeAreaSize = 10;
+
         public Main()
         {
             InitializeComponent();
-            Padding = new Padding(borderSize);
+            Padding = new Padding(_borderSize);
             BackColor = Color.Sienna;
-            leftBorderBtn = new Panel
+            _leftBorderButton = new Panel
             {
                 Size = new Size(7, 46)
             };
-            panelSideBarMenu.Controls.Add(leftBorderBtn);
-
+            panelSideBarMenu.Controls.Add(_leftBorderButton);
         }
-        //Drag Form
+
+        // Drag Form
         [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
-        private extern static void ReleaseCapture();
+        private static extern void ReleaseCapture();
+
         [DllImport("user32.DLL", EntryPoint = "SendMessage")]
-        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+        private static extern void SendMessage(IntPtr hWnd, int wMsg, int wParam, int lParam);
 
         private void panelTitle_MouseDown(object sender, MouseEventArgs e)
         {
             ReleaseCapture();
             SendMessage(Handle, 0x112, 0xf012, 0);
         }
+
         private void labelTitle_MouseDown(object sender, MouseEventArgs e)
         {
             ReleaseCapture();
             SendMessage(Handle, 0x112, 0xf012, 0);
         }
+
         private void labelMenuTitle_MouseDown(object sender, MouseEventArgs e)
         {
             ReleaseCapture();
             SendMessage(Handle, 0x112, 0xf012, 0);
         }
-        // No Explore BAR (btw what the fuck is this shitty code)
+
+        // Overridden methods
         protected override void WndProc(ref Message m)
         {
-            const int WM_NCHITTEST = 0x0084; // Win32, Thông báo Đầu vào Chuột: Xác định phần nào của cửa sổ tương ứng với một điểm, cho phép thay đổi kích thước của form.
-            const int resizeAreaSize = 10;
-
-            // Thay đổi kích thước FORM
-            const int HTCLIENT = 1; // Đại diện cho khu vực client của cửa sổ
-            const int HTLEFT = 10;  // Viền trái của cửa sổ, cho phép thay đổi kích thước theo chiều ngang sang trái
-            const int HTRIGHT = 11; // Viền phải của cửa sổ, cho phép thay đổi kích thước theo chiều ngang sang phải
-            const int HTTOP = 12;   // Viền phía trên của cửa sổ, cho phép thay đổi kích thước theo chiều dọc lên
-            const int HTTOPLEFT = 13; // Góc trên bên trái của viền cửa sổ, cho phép thay đổi kích thước theo đường chéo sang trái
-            const int HTTOPRIGHT = 14; // Góc trên bên phải của viền cửa sổ, cho phép thay đổi kích thước theo đường chéo sang phải
-            const int HTBOTTOM = 15; // Viền phía dưới của cửa sổ, cho phép thay đổi kích thước theo chiều dọc xuống
-            const int HTBOTTOMLEFT = 16; // Góc dưới bên trái của viền cửa sổ, cho phép thay đổi kích thước theo đường chéo sang trái
-            const int HTBOTTOMRIGHT = 17; // Góc dưới bên phải của viền cửa sổ, cho phép thay đổi kích thước theo đường chéo sang phải
-            if (m.Msg == WM_NCHITTEST)
-            { // Nếu cửa sổ m là WM_NCHITTEST
+            if (m.Msg == WmNchittest)
+            {
                 base.WndProc(ref m);
-                if (WindowState == FormWindowState.Normal) // Thay đổi kích thước form nếu nó ở trạng thái bình thường
+                if (WindowState == FormWindowState.Normal)
                 {
-                    if ((int)m.Result == HTCLIENT) // Nếu kết quả của m (chuột) nằm trong khu vực client của cửa sổ
-                    {
-                        Point screenPoint = new(m.LParam.ToInt32()); // Lấy tọa độ điểm trên màn hình (tọa độ X và Y của chuột)
-                        Point clientPoint = PointToClient(screenPoint); // Chuyển đổi vị trí của điểm trên màn hình thành tọa độ client
-                        if (clientPoint.Y <= resizeAreaSize) // Nếu chuột ở phía trên của form (trong khu vực thay đổi kích thước - tọa độ X)
-                        {
-                            if (clientPoint.X <= resizeAreaSize) // Nếu chuột ở tọa độ X=0 hoặc nhỏ hơn kích thước thay đổi (X=10)
-                                m.Result = HTTOPLEFT; // Thay đổi kích thước theo đường chéo sang trái
-                            else if (clientPoint.X < (Size.Width - resizeAreaSize)) // Nếu chuột nằm giữa trái và phải của form
-                                m.Result = HTTOP; // Thay đổi kích thước theo chiều dọc lên
-                            else // Thay đổi kích thước theo đường chéo sang phải
-                                m.Result = HTTOPRIGHT;
-                        }
-                        else if (clientPoint.Y <= (Size.Height - resizeAreaSize)) // Nếu chuột nằm bên trong form ở tọa độ Y (loại bỏ kích thước thay đổi)
-                        {
-                            if (clientPoint.X <= resizeAreaSize) // Thay đổi kích thước theo chiều ngang sang trái
-                                m.Result = HTLEFT;
-                            else if (clientPoint.X > (Width - resizeAreaSize)) // Thay đổi kích thước theo chiều ngang sang phải
-                                m.Result = HTRIGHT;
-                        }
-                        else
-                        {
-                            m.Result = clientPoint.X <= resizeAreaSize
-                                ? HTBOTTOMLEFT
-                                : clientPoint.X < (Size.Width - resizeAreaSize) ? HTBOTTOM : (IntPtr)HTBOTTOMRIGHT;
-                        }
-                    }
+                    HandleResize(ref m);
                 }
                 return;
             }
-            const int WM_NCCALCSIZE = 0x0083;
-            if (m.Msg == WM_NCCALCSIZE && m.WParam.ToInt32() == 1)
+
+            if (m.Msg == WmNccalcsize && m.WParam.ToInt32() == 1)
             {
                 return;
             }
+
             base.WndProc(ref m);
         }
 
-        //Event Method (Gọi khi ứng dụng phóng to hoặc điều chỉnh size)
+        private void HandleResize(ref Message m)
+        {
+            if ((int)m.Result != Htclient) return;
+
+            var screenPoint = new Point(m.LParam.ToInt32());
+            var clientPoint = PointToClient(screenPoint);
+
+            if (clientPoint.Y <= ResizeAreaSize)
+            {
+                if (clientPoint.X <= ResizeAreaSize)
+                    m.Result = (IntPtr)Httopleft;
+                else if (clientPoint.X < (Size.Width - ResizeAreaSize))
+                    m.Result = (IntPtr)Httop;
+                else
+                    m.Result = (IntPtr)Httopright;
+            }
+            else if (clientPoint.Y <= (Size.Height - ResizeAreaSize))
+            {
+                if (clientPoint.X <= ResizeAreaSize)
+                    m.Result = (IntPtr)Htleft;
+                else if (clientPoint.X > (Width - ResizeAreaSize))
+                    m.Result = (IntPtr)Htright;
+            }
+            else
+            {
+                if (clientPoint.X <= ResizeAreaSize)
+                    m.Result = (IntPtr)Htbottomleft;
+                else if (clientPoint.X < (Size.Width - ResizeAreaSize))
+                    m.Result = (IntPtr)Htbottom;
+                else
+                    m.Result = (IntPtr)Htbottomright;
+            }
+        }
+
         private void Form1_Resize(object sender, EventArgs e)
         {
             AdjustForm();
         }
-        // Chỉnh sao cho nút tắt chương trình, phóng to , Minimize khỏi lệch Form
+
         private void AdjustForm()
         {
-
             switch (WindowState)
             {
                 case FormWindowState.Maximized:
@@ -116,22 +131,21 @@ namespace Đồ_Thị
                     btnFullScreen.IconChar = IconChar.Compress;
                     break;
                 case FormWindowState.Normal:
-                    if (Padding.Top != borderSize)
+                    if (Padding.Top != _borderSize)
                     {
-                        Padding = new Padding(borderSize);
+                        Padding = new Padding(_borderSize);
                         btnFullScreen.IconChar = IconChar.Expand;
                     }
                     break;
-
             }
         }
-        private void FullScreenMode()
+
+        private void ToggleFullScreen()
         {
-            if (WindowState == FormWindowState.Normal)
-            { btnFullScreen.IconChar = FontAwesome.Sharp.IconChar.Compress; WindowState = FormWindowState.Maximized; }
-            else
-            { WindowState = FormWindowState.Normal; btnFullScreen.IconChar = FontAwesome.Sharp.IconChar.Expand; }
+            WindowState = WindowState == FormWindowState.Normal ? FormWindowState.Maximized : FormWindowState.Normal;
+            btnFullScreen.IconChar = WindowState == FormWindowState.Maximized ? IconChar.Compress : IconChar.Expand;
         }
+
         private void btnMinimized_Click(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Minimized;
@@ -139,7 +153,7 @@ namespace Đồ_Thị
 
         private void btnFullScreen_Click(object sender, EventArgs e)
         {
-            FullScreenMode();
+            ToggleFullScreen();
         }
 
         private void btnExit_Click(object sender, EventArgs e)
@@ -149,149 +163,134 @@ namespace Đồ_Thị
 
         private void btnButtonMenu_Click(object sender, EventArgs e)
         {
-            btnSidebarMenu_Transition.Start();
+            sidebarTransition.Start();
         }
-        // Sidebar 
-        bool sidebarcheck = true;
-        private void btnButtonMenu_Transition_Tick(object sender, EventArgs e)
+
+        private void sidebarTransition_Tick(object sender, EventArgs e)
         {
-
-            if (sidebarcheck)
+            if (_isSidebarExpanded)
             {
-                panelSideBarMenu.Width -= 10;
-                btnButtonMenu.Dock = DockStyle.Top;
-                foreach (Button sidemenubtn in panelSideBarMenu.Controls.OfType<Button>())
-                {
-                    sidemenubtn.Text = "";
-                }
-                if (panelSideBarMenu.Width <= 60)
-                {
-                    sidebarcheck = false;
-                    labelMenuTitle.Visible = false;
-                    btnSidebarMenu_Transition.Stop();
-                    foreach (Button sidemenubtn in panelSideBarMenu.Controls.OfType<Button>())
-                    {
-                        sidemenubtn.ImageAlign = ContentAlignment.MiddleCenter;
-                        sidemenubtn.Padding = new Padding(0);
-                    }
-                }
-
+                CollapseSidebar();
             }
             else
             {
-                panelSideBarMenu.Width += 10;
-                btnButtonMenu.Dock = DockStyle.Fill;
-                labelMenuTitle.Visible = true;
-                foreach (Button sidemenubtn in panelSideBarMenu.Controls.OfType<Button>())
-                {
-                    sidemenubtn.ImageAlign = ContentAlignment.MiddleLeft;
-                    sidemenubtn.Padding = new Padding(10, 0, 0, 0);
-                }
-                if (panelSideBarMenu.Width >= 206)
-                {
-                    foreach (Button sidemenubtn in panelSideBarMenu.Controls.OfType<Button>())
-                        sidemenubtn.Text = sidemenubtn.Tag != null ? sidemenubtn.Tag.ToString() : "";
-                    sidebarcheck = true;
-                    btnSidebarMenu_Transition.Stop();
-                }
+                ExpandSidebar();
             }
         }
-        // KeyDown F11 Key FullScreen
+
+        private void CollapseSidebar()
+        {
+            panelSideBarMenu.Width -= 10;
+            if (panelSideBarMenu.Width > 60) return;
+
+            _isSidebarExpanded = false;
+            labelMenuTitle.Visible = false;
+            sidebarTransition.Stop();
+
+            foreach (var button in panelSideBarMenu.Controls.OfType<Button>())
+            {
+                button.Text = "";
+                button.ImageAlign = ContentAlignment.MiddleCenter;
+                button.Padding = new Padding(0);
+            }
+        }
+
+        private void ExpandSidebar()
+        {
+            panelSideBarMenu.Width += 10;
+            if (panelSideBarMenu.Width < 206) return;
+
+            _isSidebarExpanded = true;
+            labelMenuTitle.Visible = true;
+            sidebarTransition.Stop();
+
+            foreach (var button in panelSideBarMenu.Controls.OfType<Button>())
+            {
+                button.Text = button.Tag?.ToString() ?? "";
+                button.ImageAlign = ContentAlignment.MiddleLeft;
+                button.Padding = new Padding(10, 0, 0, 0);
+            }
+        }
+
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == Keys.F11)
-            {
-                FullScreenMode();
-                return true;
-            }
-            return base.ProcessCmdKey(ref msg, keyData);
+            if (keyData != Keys.F11) return base.ProcessCmdKey(ref msg, keyData);
+            ToggleFullScreen();
+            return true;
         }
 
-        private struct ColorRGB
+        private struct RgbColors
         {
-            public static Color color1 = Color.SaddleBrown;
-
+            public static readonly Color Color1 = Color.SaddleBrown;
         }
-        // Custom BTN
-        private void ActivateBTN(object sender, Color color)
-        {
-            if (sender != null)
-            {
-                DisableBTN();
-                // Button
-                currentbtn = (IconButton)sender;
-                currentbtn.BackColor = Color.FromArgb(255, 141, 98);
-                currentbtn.ForeColor = color;
-                currentbtn.TextAlign = ContentAlignment.MiddleCenter;
-                currentbtn.IconColor = color;
-                currentbtn.TextImageRelation = TextImageRelation.TextBeforeImage;
-                currentbtn.ImageAlign = ContentAlignment.MiddleRight;
-                // Left BorderBTN
-                leftBorderBtn.BackColor = color;
-                leftBorderBtn.Location = new Point(0, currentbtn.Location.Y);
-                leftBorderBtn.Visible = true;
-                leftBorderBtn.BringToFront();
-            }
-        }
-        private void DisableBTN()
-        {
-            if (currentbtn != null)
-            {
-                currentbtn.BackColor = Color.LightSalmon;
-                currentbtn.ForeColor = Color.White;
-                currentbtn.TextAlign = ContentAlignment.MiddleCenter;
-                currentbtn.IconColor = Color.Black;
-                currentbtn.TextImageRelation = TextImageRelation.ImageBeforeText;
-                currentbtn.ImageAlign = ContentAlignment.MiddleLeft;
 
+        private void ActivateButton(object sender, Color color)
+        {
+            if (sender == null) return;
+
+            DisableButton();
+            _currentButton = (IconButton)sender;
+            _currentButton.BackColor = Color.FromArgb(255, 141, 98);
+            _currentButton.ForeColor = color;
+            _currentButton.TextAlign = ContentAlignment.MiddleCenter;
+            _currentButton.IconColor = color;
+            _currentButton.TextImageRelation = TextImageRelation.TextBeforeImage;
+            _currentButton.ImageAlign = ContentAlignment.MiddleRight;
+
+            _leftBorderButton.BackColor = color;
+            _leftBorderButton.Location = new Point(0, _currentButton.Location.Y);
+            _leftBorderButton.Visible = true;
+            _leftBorderButton.BringToFront();
+        }
+
+        private void DisableButton()
+        {
+            if (_currentButton == null) return;
+
+            _currentButton.BackColor = Color.LightSalmon;
+            _currentButton.ForeColor = Color.White;
+            _currentButton.TextAlign = ContentAlignment.MiddleCenter;
+            _currentButton.IconColor = Color.Black;
+            _currentButton.TextImageRelation = TextImageRelation.ImageBeforeText;
+            _currentButton.ImageAlign = ContentAlignment.MiddleLeft;
+        }
+
+        private void OpenUserControl(UserControl userControl)
+        {
+            foreach (Control control in panelMain.Controls)
+            {
+                control.Dispose();
             }
+            panelMain.Controls.Add(userControl);
+            userControl.Dock = DockStyle.Fill;
         }
 
         private void btnSideBar1_Click(object sender, EventArgs e)
         {
-            ActivateBTN(sender, ColorRGB.color1);
-            foreach (Control c in panelMain.Controls)
-            {
-                c.Dispose();
-            }
-            MatrixShow matrix = new();
-            panelMain.Controls.Add(matrix);
-            matrix.Dock = DockStyle.Fill;
-
+            ActivateButton(sender, RgbColors.Color1);
+            OpenUserControl(new MatrixShow());
         }
 
         private void btnSideBar2_Click(object sender, EventArgs e)
         {
-            ActivateBTN(sender, ColorRGB.color1);
-            foreach (Control c in panelMain.Controls)
-            {
-                c.Dispose();
-            }
-            Prim_BTTT test = new();
-            panelMain.Controls.Add(test);
-            test.Dock = DockStyle.Fill;
+            ActivateButton(sender, RgbColors.Color1);
+            OpenUserControl(new Prim_BTTT());
         }
 
         private void btnSideBar3_Click(object sender, EventArgs e)
         {
-            ActivateBTN(sender, ColorRGB.color1);
-            foreach (Control c in panelMain.Controls)
-            {
-                c.Dispose();
-            }
-            MatrixBlock matrix = new();
-            panelMain.Controls.Add(matrix);
-            matrix.Dock = DockStyle.Fill;
+            ActivateButton(sender, RgbColors.Color1);
+            OpenUserControl(new MatrixBlock());
         }
 
         private void btnSideBar4_Click(object sender, EventArgs e)
         {
-            ActivateBTN(sender, ColorRGB.color1);
+            ActivateButton(sender, RgbColors.Color1);
             foreach (Control c in panelMain.Controls)
             {
                 c.Dispose();
             }
         }
-
     }
 }
