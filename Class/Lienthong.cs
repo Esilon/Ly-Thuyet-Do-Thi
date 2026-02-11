@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.Class
+﻿namespace DoThi.Class
 {
 
     internal class Lienthong(List<Vertex> vertices, List<Edge> edges)

@@ -2,13 +2,13 @@
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Text;
-using Đồ_Thị.Animation;
-using Đồ_Thị.Class;
-using Đồ_Thị.Compoments;
+using DoThi.Animation;
+using DoThi.Class;
+using DoThi.Components;
 
-namespace Đồ_Thị.uc
+namespace DoThi.uc
 {
-    public partial class Prim_BTTT : UserControl
+    public partial class PrimBTTT : UserControl
     {
         private readonly MatrixBlock _matrixBlock = new();
         private readonly MovingBall _movingBall;
@@ -48,7 +48,7 @@ namespace Đồ_Thị.uc
 
         private List<Edge> _additionalEllipseEdges = [];
 
-        public Prim_BTTT()
+        public PrimBTTT()
         {
             InitializeComponent();
             SetDoubleBufferedPanel();

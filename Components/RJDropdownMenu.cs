@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Đồ_Thị.Compoments
+namespace DoThi.Components
 {
     public class RJDropdownMenu(IContainer container) : ContextMenuStrip(container)
     {

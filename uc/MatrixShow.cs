@@ -1,10 +1,10 @@
-﻿using Đồ_Thị.Animation;
-using Đồ_Thị.Class;
-using Đồ_Thị.Compoments;
+﻿using DoThi.Animation;
+using DoThi.Class;
+using DoThi.Components;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Text;
-namespace Đồ_Thị.uc
+namespace DoThi.uc
 {
     public partial class MatrixShow : UserControl
     {

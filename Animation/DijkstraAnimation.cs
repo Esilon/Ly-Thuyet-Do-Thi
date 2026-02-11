@@ -1,7 +1,7 @@
-﻿using Đồ_Thị.Class;
+﻿using DoThi.Class;
 using Timer = System.Windows.Forms.Timer;
 
-namespace Đồ_Thị.Animation
+namespace DoThi.Animation
 {
     public class DijkstraAnimation : UserControl
     {

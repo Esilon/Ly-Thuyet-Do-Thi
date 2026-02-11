@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Đồ_Thị.uc
+namespace DoThi.uc
 {
     public partial class MatrixBlock : UserControl
     {

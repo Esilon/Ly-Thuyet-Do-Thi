@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.Compoments
+﻿namespace DoThi.Components
 {
     public class MenuColorTable : ProfessionalColorTable
     {
