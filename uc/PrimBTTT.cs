@@ -2,13 +2,13 @@
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Text;
-using Đồ_Thị.Animation;
-using Đồ_Thị.Class;
-using Đồ_Thị.Compoments;
+using DoThi.Animation;
+using DoThi.Class;
+using DoThi.Components;
 
-namespace Đồ_Thị.uc
+namespace DoThi.uc
 {
-    public partial class Prim_BTTT : UserControl
+    public partial class PrimBTTT : UserControl
     {
         private readonly MatrixBlock _matrixBlock = new();
         private readonly MovingBall _movingBall;
@@ -48,7 +48,7 @@ namespace Đồ_Thị.uc
 
         private List<Edge> _additionalEllipseEdges = [];
 
-        public Prim_BTTT()
+        public PrimBTTT()
         {
             InitializeComponent();
             SetDoubleBufferedPanel();
@@ -522,7 +522,7 @@ namespace Đồ_Thị.uc
 
         private bool IsPointOnEdge(PointF point, PointF p1, PointF p2)
         {
-            const double tolerance = 3.0; // Adjust this value as needed
+            const double tolerance = 5.0; // Adjust this value as needed
             double distance = DistancePointToLineSegment(point, p1, p2);
             return distance <= tolerance;
         }

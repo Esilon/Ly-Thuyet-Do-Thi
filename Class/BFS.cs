@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.Class
+﻿namespace DoThi.Class
 {
     public class BFS(int[,] adjacencyMatrix, List<Vertex> vertices)
     {

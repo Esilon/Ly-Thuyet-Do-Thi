@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.Class
+﻿namespace DoThi.Class
 {
     class MovingBall
     {

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
     public static partial class Prompt
     {

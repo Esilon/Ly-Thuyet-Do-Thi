@@ -1,7 +1,7 @@
 ﻿using FontAwesome.Sharp;
-using Đồ_Thị.uc;
+using DoThi.uc;
 using System.Runtime.InteropServices;
-namespace Đồ_Thị
+namespace DoThi
 {
     public partial class Main : Form
     {
@@ -267,7 +267,7 @@ namespace Đồ_Thị
             {
                 c.Dispose();
             }
-            Prim_BTTT test = new();
+            PrimBTTT test = new();
             panelMain.Controls.Add(test);
             test.Dock = DockStyle.Fill;
         }

@@ -1,5 +1,5 @@
 
-namespace Đồ_Thị.Class
+namespace DoThi.Class
 {
     public class Thisisonlytest(List<Vertex> vertices, List<Edge> edges)
     {

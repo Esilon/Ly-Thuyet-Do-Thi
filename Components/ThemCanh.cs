@@ -1,5 +1,5 @@
-﻿using Đồ_Thị.Class;
-namespace Đồ_Thị.Compoments
+﻿using DoThi.Class;
+namespace DoThi.Components
 {
     public partial class ThemCanh : Form
     {
