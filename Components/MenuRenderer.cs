@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 
-namespace Đồ_Thị.Compoments
+namespace DoThi.Components
 {
     public class MenuRenderer : ToolStripProfessionalRenderer
     {

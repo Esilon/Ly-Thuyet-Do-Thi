@@ -1,6 +1,6 @@
-﻿namespace Đồ_Thị.uc
+﻿namespace DoThi.uc
 {
-    partial class Prim_BTTT
+    partial class PrimBTTT
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,20 +29,20 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Prim_BTTT));
-            btn_ThemDinh = new Compoments.Round_Button();
-            btn_ThemCanh = new Compoments.Round_Button();
-            btn_Xoa = new Compoments.Round_Button();
-            drMenuGraph = new Compoments.RJDropdownMenu(components);
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PrimBTTT));
+            btn_ThemDinh = new Components.RoundButton();
+            btn_ThemCanh = new Components.RoundButton();
+            btn_Xoa = new Components.RoundButton();
+            drMenuGraph = new Components.RJDropdownMenu(components);
             SaveGraph = new ToolStripMenuItem();
             LoadGraph = new ToolStripMenuItem();
-            btn_select = new Compoments.Round_Button();
-            drTim = new Compoments.RJDropdownMenu(components);
+            btn_select = new Components.RoundButton();
+            drTim = new Components.RJDropdownMenu(components);
             Prim = new ToolStripMenuItem();
             flowLayoutPanel1 = new FlowLayoutPanel();
-            btnClear = new Compoments.Round_Button();
-            btn_SearchMenu = new Compoments.Round_Button();
-            btn_Graph = new Compoments.Round_Button();
+            btnClear = new Components.RoundButton();
+            btn_SearchMenu = new Components.RoundButton();
+            btn_Graph = new Components.RoundButton();
             paneldraw = new Panel();
             panelMain = new Panel();
             panelDis = new Panel();
@@ -472,13 +472,13 @@
             txtNodeCount.Size = new Size(136, 23);
             txtNodeCount.TabIndex = 0;
             // 
-            // Prim_BTTT
+            // PrimBTTT
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(flowLayoutPanel1);
             Controls.Add(panelMain);
-            Name = "Prim_BTTT";
+            Name = "PrimBTTT";
             Size = new Size(1009, 570);
             Click += btnAddVertex_Click;
             drMenuGraph.ResumeLayout(false);
@@ -496,19 +496,19 @@
 
         #endregion
 
-        private Compoments.Round_Button btn_ThemDinh;
-        private Compoments.Round_Button btn_ThemCanh;
-        private Compoments.Round_Button btn_Xoa;
-        private Compoments.RJDropdownMenu drMenuGraph;
+        private Components.RoundButton btn_ThemDinh;
+        private Components.RoundButton btn_ThemCanh;
+        private Components.RoundButton btn_Xoa;
+        private Components.RJDropdownMenu drMenuGraph;
         private ToolStripMenuItem SaveGraph;
         private ToolStripMenuItem LoadGraph;
-        private Compoments.Round_Button btn_select;
-        private Compoments.RJDropdownMenu drTim;
+        private Components.RoundButton btn_select;
+        private Components.RJDropdownMenu drTim;
         private ToolStripMenuItem Prim;
         private FlowLayoutPanel flowLayoutPanel1;
-        private Compoments.Round_Button btnClear;
-        private Compoments.Round_Button btn_SearchMenu;
-        private Compoments.Round_Button btn_Graph;
+        private Components.RoundButton btnClear;
+        private Components.RoundButton btn_SearchMenu;
+        private Components.RoundButton btn_Graph;
         private Panel paneldraw;
         private Panel panelMain;
         private Panel panelDis;

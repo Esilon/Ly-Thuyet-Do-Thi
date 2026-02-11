@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.uc
+﻿namespace DoThi.uc
 {
     partial class MatrixShow
     {
@@ -47,17 +47,17 @@
             label1 = new Label();
             txtNodeCount = new TextBox();
             paneldraw = new Panel();
-            btn_Graph = new Compoments.Round_Button();
-            btnClear = new Compoments.Round_Button();
-            btn_select = new Compoments.Round_Button();
-            btn_SearchMenu = new Compoments.Round_Button();
-            btn_Xoa = new Compoments.Round_Button();
-            btn_ThemCanh = new Compoments.Round_Button();
-            btn_ThemDinh = new Compoments.Round_Button();
-            drMenuGraph = new Compoments.RJDropdownMenu(components);
+            btn_Graph = new Components.RoundButton();
+            btnClear = new Components.RoundButton();
+            btn_select = new Components.RoundButton();
+            btn_SearchMenu = new Components.RoundButton();
+            btn_Xoa = new Components.RoundButton();
+            btn_ThemCanh = new Components.RoundButton();
+            btn_ThemDinh = new Components.RoundButton();
+            drMenuGraph = new Components.RJDropdownMenu(components);
             SaveGraph = new ToolStripMenuItem();
             LoadGraph = new ToolStripMenuItem();
-            drTim = new Compoments.RJDropdownMenu(components);
+            drTim = new Components.RJDropdownMenu(components);
             DFS = new ToolStripMenuItem();
             BFS = new ToolStripMenuItem();
             MailMan = new ToolStripMenuItem();
@@ -562,25 +562,25 @@
         private Label label1;
         private TextBox txtNodeCount;
         private Panel paneldraw;
-        private Compoments.Round_Button btn_Xoa;
-        private Compoments.Round_Button btn_select;
-        private Compoments.Round_Button btnClear;
-        private Compoments.Round_Button btn_ThemCanh;
-        private Compoments.Round_Button btn_ThemDinh;
-        private Compoments.Round_Button btn_SearchMenu;
+        private Components.RoundButton btn_Xoa;
+        private Components.RoundButton btn_select;
+        private Components.RoundButton btnClear;
+        private Components.RoundButton btn_ThemCanh;
+        private Components.RoundButton btn_ThemDinh;
+        private Components.RoundButton btn_SearchMenu;
         private Label label3;
         private Label label2;
         private ComboBox cb_Second;
         private ComboBox cb_First;
-        private Compoments.Round_Button btn_Graph;
+        private Components.RoundButton btn_Graph;
         private GroupBox MatranGroup;
         private RadioButton radio_WeightMatrix;
         private RadioButton radio_AdjMatrix;
         private Button btn_ClearMovingBall;
-        private Compoments.RJDropdownMenu drMenuGraph;
+        private Components.RJDropdownMenu drMenuGraph;
         private ToolStripMenuItem SaveGraph;
         private ToolStripMenuItem LoadGraph;
-        private Compoments.RJDropdownMenu drTim;
+        private Components.RJDropdownMenu drTim;
         private ToolStripMenuItem DFS;
         private ToolStripMenuItem BFS;
         private ToolStripMenuItem MailMan;

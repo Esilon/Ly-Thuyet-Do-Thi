@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.Class
+﻿namespace DoThi.Class
 {
     [Serializable]
     public class Edge(int vertex1, int vertex2, int weight, bool isDirected) : IComparable<Edge>

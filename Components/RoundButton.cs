@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 
-namespace Đồ_Thị.Compoments
+namespace DoThi.Components
 {
-    public class Round_Button : Button
+    public class RoundButton : Button
     {
         private int borderSize = 0;
         private int borderRadius = 20;
@@ -59,7 +59,7 @@ namespace Đồ_Thị.Compoments
         }
 
         //Constructor
-        public Round_Button()
+        public RoundButton()
         {
             FlatStyle = FlatStyle.Flat;
             FlatAppearance.BorderSize = 0;

@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị
+﻿namespace DoThi
 {
     partial class Main
     {
@@ -113,7 +113,7 @@
             btnSideBar1.Size = new Size(206, 46);
             btnSideBar1.TabIndex = 2;
             btnSideBar1.Tag = "btnSideBar1";
-            btnSideBar1.Text = "Prim_BTTT";
+            btnSideBar1.Text = "PrimBTTT";
             btnSideBar1.TextAlign = ContentAlignment.MiddleLeft;
             btnSideBar1.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnSideBar1.UseVisualStyleBackColor = false;

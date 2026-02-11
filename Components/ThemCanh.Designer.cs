@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.Compoments
+﻿namespace DoThi.Components
 {
     partial class ThemCanh
     {

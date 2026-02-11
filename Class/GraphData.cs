@@ -1,7 +1,26 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
-namespace Đồ_Thị.Class
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Reflection;
+
+namespace DoThi.Class
 {
 #pragma warning disable SYSLIB0011
+    sealed class GraphDeserializationBinder : SerializationBinder
+    {
+        public override Type? BindToType(string assemblyName, string typeName)
+        {
+            string newTypeName = typeName.Replace("Đồ_Thị", "DoThi");
+            string newAssemblyName = assemblyName.Replace("Đồ thị", "DoThi");
+
+            // Try to resolve type from the current assembly first (for custom types)
+            Type? type = Assembly.GetExecutingAssembly().GetType(newTypeName);
+            if (type != null) return type;
+
+            // Fallback for system types or if assembly name match is required
+            return Type.GetType($"{newTypeName}, {newAssemblyName}");
+        }
+    }
+
     [Serializable]
     public class GraphData
     {
@@ -36,14 +55,15 @@ namespace Đồ_Thị.Class
             }
         }
 
-        public static GraphData LoadGraph(string fileName)
+        public static GraphData? LoadGraph(string fileName)
         {
-            GraphData loadedData;
+            GraphData? loadedData;
 
             try
             {
                 using Stream stream = File.Open(fileName, FileMode.Open);
                 BinaryFormatter bformatter = new();
+                bformatter.Binder = new GraphDeserializationBinder();
                 loadedData = (GraphData)bformatter.Deserialize(stream);
             }
             catch (Exception ex)
@@ -54,7 +74,7 @@ namespace Đồ_Thị.Class
 
             return loadedData;
         }
-        public static GraphData OpenGraphFile()
+        public static GraphData? OpenGraphFile()
         {
             OpenFileDialog openFileDialog = new()
             {

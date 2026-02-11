@@ -1,4 +1,4 @@
-﻿namespace Đồ_Thị.uc
+﻿namespace DoThi.uc
 {
     partial class MatrixBlock
     {
