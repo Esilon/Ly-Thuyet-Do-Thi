@@ -522,7 +522,7 @@ namespace DoThi.uc
 
         private bool IsPointOnEdge(PointF point, PointF p1, PointF p2)
         {
-            const double tolerance = 3.0; // Adjust this value as needed
+            const double tolerance = 5.0; // Adjust this value as needed
             double distance = DistancePointToLineSegment(point, p1, p2);
             return distance <= tolerance;
         }
