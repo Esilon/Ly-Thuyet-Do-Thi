@@ -1,14 +1,23 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Đồ_Thị.Class
 {
-#pragma warning disable SYSLIB0011
-    [Serializable]
     public class GraphData
     {
         public required List<Vertex> Vertices { get; set; }
         public required List<Edge> Edges { get; set; }
         public required int[,] AdjacencyMatrix { get; set; }
         public required int[,] WeightMatrix { get; set; }
+
+        private static JsonSerializerOptions GetJsonOptions()
+        {
+            return new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Converters = { new Array2DConverter(), new PointFConverter() }
+            };
+        }
 
         #region Save/Load
         public void SaveGraph()
@@ -25,9 +34,8 @@ namespace Đồ_Thị.Class
 
                 try
                 {
-                    using Stream stream = File.Open(fileName, FileMode.Create);
-                    BinaryFormatter bformatter = new();
-                    bformatter.Serialize(stream, this);
+                    string json = JsonSerializer.Serialize(this, GetJsonOptions());
+                    File.WriteAllText(fileName, json);
                 }
                 catch (Exception ex)
                 {
@@ -42,9 +50,9 @@ namespace Đồ_Thị.Class
 
             try
             {
-                using Stream stream = File.Open(fileName, FileMode.Open);
-                BinaryFormatter bformatter = new();
-                loadedData = (GraphData)bformatter.Deserialize(stream);
+                string json = File.ReadAllText(fileName);
+                loadedData = JsonSerializer.Deserialize<GraphData>(json, GetJsonOptions())
+                    ?? throw new JsonException($"Data in file '{fileName}' is invalid or empty.");
             }
             catch (Exception ex)
             {

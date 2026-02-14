@@ -1,6 +1,5 @@
-﻿namespace Đồ_Thị.Class
+namespace Đồ_Thị.Class
 {
-    [Serializable]
     public class Vertex(PointF location, string value)
     {
         public PointF Location { get; set; } = location;
