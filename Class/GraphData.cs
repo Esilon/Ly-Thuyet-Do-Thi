@@ -51,7 +51,8 @@ namespace Đồ_Thị.Class
             try
             {
                 string json = File.ReadAllText(fileName);
-                loadedData = JsonSerializer.Deserialize<GraphData>(json, GetJsonOptions());
+                loadedData = JsonSerializer.Deserialize<GraphData>(json, GetJsonOptions())
+                    ?? throw new JsonException($"Data in file '{fileName}' is invalid or empty.");
             }
             catch (Exception ex)
             {
